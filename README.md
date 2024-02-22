@@ -10,14 +10,15 @@ We are going to prepare dltB using various software packages, then run the sims 
 dltB has 415-430 residues depending on species. We will be modeling the full protein within a POPC bilayer.
 
 Generic steps for setting up a simulation:
-1. Acquire appropriate PDB files
-2. Clean and prepare the protein
-3. Add environment / solvate
-4. Generate starting files
-5. Prepare Savio
-6. Kick off sims, monitor
+1. Acquire appropriate PDB files (#one)
+2. Clean and prepare the protein (#two)
+3. Add environment / solvate (#three)
+4. Generate starting files (#four)
+5. Prepare Savio (#five)
+6. Kick off sims, monitor (#six)
    
-# 1: Acquire appropriate PDB files
+# 1: Acquire appropriate PDB files 
+<a name="one">
 **Acquire original PDB**
 - Download a crystal strxr of dltBCDX
 - Open PyMol
@@ -45,6 +46,7 @@ Command: align dltB_alone, 6bug_from_OPM
 Delete 6bug_from_OPM
 File → Export Molecule → (do i check or uncheck the retain pdb ids?) (can’t remember what I chose) → Selected: dltB_alone, not all → saved as a .pdb file
 importing into Maestro, it’s numbered the same, so must have retained?
+</a>
 
 # 2: Clean and prepare the protein
 PDB file preparation [PyMOL / Maestro] --> we need to add hydrogen atoms to every residue in the protein; we need to check certain residues (e.g. glutamates, aspartates, etc. for their local environment and see if via pKa would affect protonation state). Add capping residues so that termini are neutraliized
