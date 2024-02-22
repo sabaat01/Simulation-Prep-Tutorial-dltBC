@@ -1,9 +1,9 @@
 # Simulation-Prep-Tutorial-dltBC
 walkthrough of preparing a new system for simulating, using dltBC as an example
 # Intro and Goals
-dltBCDX is a multi-protein complex embedded in the cell wall (membranes?) of (gram-positive?) bacteria and is involved in decorating the outer surface of the cell wall with D-alanine residues. These D-alanines start on the intracellular side and pass through the complex through covalent bonds and modifications. On the extracellular side, they attach to LTAs (lipotechoic acid) and provide the bacteria with a positive charge, which protects the bacteria from (degradation???).
+dltBCDX is a multi-protein complex embedded in the cell wall (membranes?) of (gram-positive?) bacteria and is involved in decorating the outer surface of the cell wall with D-alanine residues. These D-alanines start on the intracellular side and pass through the complex through covalent bond modifications. On the extracellular side, they attach to LTAs (lipotechoic acid) and provide the bacteria with a positive charge, which protects the bacteria from (degradation???).
 
-In this simulation, we are only modeling dltB, which is suspected to not directly interact with D-ala, but rather facilitate d-ala in jumping from dltC to dltX.
+In this simulation, we are only modeling dltB, which is suspected to facilitate D-ala in jumping from dltC to dltX.
 
 We are going to prepare dltB using various software packages, then run the sims on Savio (Berkeley's HPCC).
 
