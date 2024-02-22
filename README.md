@@ -83,24 +83,30 @@ Maestro requires a license. UC Berkeley's Chem Library can provide access throug
 - Delete heteroatoms: we had an atom that needed removing, but double-check before deleting stuff in general
 
 ## Check protonation states
-Logic: Check certain residues for their local environment. what is the pKa of the lipid membranes?. Determine whether pKa of each residue would affect protonation state in the system
-The pka of a residue can change dramatically, which may affect your expected protonation state
-example: aspartic acid changes from pka 3.71 to pka 7.6
-you can examine which residues are in pockets that affect its pka (or the pkas of nearby residues)
-example: a lysine and aspartic acid near each other may favor protonated lysine + deprotonated aspartic acid
-Method:
-first pass Interactive Optimizer
-then download and hand to dowser
-second pass recheck assignments using Interactive Optimizer, then do a restrained minimization (usually Hydrogens only, OPLS4) 
+We want to examine the local environment of the protein's residues. Some residues have charge states that will be influenced by whether they are in a particularly positively or negatively charged region of the protein. 
+We cannot depend on the generic charge state of these residues, because their pKa value will be affected by the region they inhabit. If a residue's pKa shifts dramatically, it may need to occupy a different protonation state from expected.
+Example: aspartic acid (D) changing from pKa 3.71 to pKa 7.6.  A lysine (K) and aspartic acid (D) near each other may favor a protonated lysine and deprotonated aspartic acid.
+Goal: use Maestro to examine which residues are in pockets that may affect their pKa, or the pKas of nearby residues
+
+- Interactive Optimizer - first pass
+- Export PDB for Maestro and run dowser
+- Recheck assignments using Interactive Optimizer again
+- Perform a Restrained Minimization (hydrogens only, OPLS4)
 More notes written in blue notebook!
-Export prepared PDB file
+Want to check glu, asp, lys, and his. His is its own beast
+- Export prepared PDB file
+	- To export from MGCF remote directory to local, open MobaXTerm. Select the file you want from the left sidebar (directory listing) and download to local computer.
 
-PDB file preparation [PyMOL / Maestro] --> we need to add hydrogen atoms to every residue in the protein; we need to check certain residues (e.g. glutamates, aspartates, etc. for their local environment and see if via pKa would affect protonation state). Add capping residues so that termini are neutraliized
-Add internal water molecules --> [upload our PDB file to Savio where we use the dowser command to add waters]
-Combine the water pdb file (dowserwat.pdb) with the exported PDB file and upload to Savio
+## Cap termini
+Goal is to neutralize the protein backbone but making an adjustment to the C and N-terminals. These are the ACE and NME caps, which add a methyl group to the end of the protein chain. You can google ACE and NME online to see the exact conformation adopted.
 
+**do we add waters in Maestro or Savio? Or both?**
 ---
 # 2: Add environment / solvate
+
+## Add internal water molecules
+Add internal water molecules --> [upload our PDB file to Savio where we use the dowser command to add waters]
+Combine the water pdb file (dowserwat.pdb) with the exported PDB file and upload to Savio
 packmol-memgen
 
 Packmol-Memgen notes
@@ -368,3 +374,5 @@ then it starts Prod_1. once Prod_1 is done, it calls a regex expression to figur
 
 to figure out the available account, QoS, and partition to use:
 sacctmgr -p show associations user=$USER
+
+# 6: Monitor sim progress and troubleshoot
