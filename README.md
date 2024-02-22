@@ -16,6 +16,7 @@ Generic steps for setting up a simulation:
 4. Generate starting files (#four)
 5. Prepare Savio (#five)
 6. Kick off sims, monitor (#six)
+<div></div>
 
 # 1: Prepare protein
 
@@ -24,12 +25,12 @@ Generic steps for setting up a simulation:
 - Open PyMol
 - Remove everything not needed
 
-Download the new dltB structure (by Harvard group) from google drive
-Open in PyMol
-Label by chain, color by chain
-Command: select chain B and DltBCDX
-Hide unselected
-A → copy selection to object → new → rename → dltB_alone
+- Download the new dltB structure (by Harvard group) from google drive
+- Open in PyMol
+- Label by chain, color by chain
+- Command: select chain B and DltBCDX
+- Hide unselected
+- A → copy selection to object → new → rename → dltB_alone
 
 ## Orient into a membrane frame
 
@@ -98,7 +99,9 @@ PDB file preparation [PyMOL / Maestro] --> we need to add hydrogen atoms to ever
 Add internal water molecules --> [upload our PDB file to Savio where we use the dowser command to add waters]
 Combine the water pdb file (dowserwat.pdb) with the exported PDB file and upload to Savio
 
-# 3: Add environment / solvate
+<div></div>
+
+# 2: Add environment / solvate
 packmol-memgen
 
 Packmol-Memgen notes
@@ -211,7 +214,7 @@ Phosphatidylglycerol PG
 actually, packmol says it didn’t find the perfect configuration, but that what was found is likely good enough. can re-run it, but not necessary.
 
 
-# 4: Generate starting files
+# 3: Parametrize system
 after running the packmol command, prepare to run tleao
 
 This will generate a .pdb file and leap.in file, which can be edited by the user if required.
@@ -310,6 +313,9 @@ Last minute checks:
 - salt balanced
 - checkValidity
 
+<div></div>
+
+# 4: Generate other input files
 ## Minimize, Heat, Equilibrate, Production
 lastly, we start our simulation
 Bilayer depression/buckling
@@ -322,8 +328,10 @@ sam do thinking on backing thing sup to wasabi and do a tutorial on how partitio
 tleap will give a warning if net charge is not zero
 change cut to 10.0
 what is the ref file set to (Min_3 vs prev.rst)
+
+## Run Bash
   
-# 5: Prepare Savio
+# 5: Kick off simms
 for savio setups:
 folder structure:
 sims → dltBCDX
