@@ -44,7 +44,7 @@ We want everything oriented such that x and y are the 2D dimensions of the bilay
 - Delete 6bug_from_OPM
 - File → Export Molecule → Check Retain PDB IDs → Selected: <dltB_alone>, __not__ all → Save as a .pdb file
 
-## Accessing Maestro Virtually
+## Access Maestro Virtually
 Maestro requires a license. UC Berkeley's Chem Library can provide access through the Molecular Graphics Computation Facility (MGCF). You will have to access a virtual environment to run Maestro. Alternatively, you can visit the MGCF in person in Tan Hall and use Maestro directly on an MGCF monitor.
 
 - Assuming an account with the Chem Library MGCF is already set up, ensure the following basic items are complete:
@@ -63,12 +63,12 @@ Maestro requires a license. UC Berkeley's Chem Library can provide access throug
 - Open Maestro and create a new project
 - Import structure: dltB_aligned.pdb
 
-### Add hydrogens
+## Add hydrogens
 - Select P for Protein
 - Build → 3D Builder → +H
 	- This will add hydrogens to every residue in the protein
 
-### Resolve any identified issues
+## Resolve any identified issues
 - Search for Protein Prep Wizard in the upper right menu and select once it appears
 - In the wizard → check SS1
 - Confirm there are no issues
@@ -81,7 +81,7 @@ Maestro requires a license. UC Berkeley's Chem Library can provide access throug
 - Go to Review and Modify window
 - Delete heteroatoms: we had an atom that needed removing, but double-check before deleting stuff in general
 
-### Check protonation states
+## Check protonation states
 Logic: Check certain residues for their local environment. what is the pKa of the lipid membranes?. Determine whether pKa of each residue would affect protonation state in the system
 The pka of a residue can change dramatically, which may affect your expected protonation state
 example: aspartic acid changes from pka 3.71 to pka 7.6
