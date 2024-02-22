@@ -44,7 +44,7 @@ We want everything oriented such that x and y are the 2D dimensions of the bilay
 - Delete 6bug_from_OPM
 - File → Export Molecule → Check Retain PDB IDs → Selected: <dltB_alone>, __not__ all → Save as a .pdb file
 
-## Access Maestro Virtually
+## Access Maestro virtually
 Maestro requires a license. UC Berkeley's Chem Library can provide access through the Molecular Graphics Computation Facility (MGCF). You will have to access a virtual environment to run Maestro. Alternatively, you can visit the MGCF in person in Tan Hall and use Maestro directly on an MGCF monitor.
 
 - Assuming an account with the Chem Library MGCF is already set up, ensure the following basic items are complete:
