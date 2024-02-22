@@ -17,9 +17,8 @@ Generic steps for setting up a simulation:
 5. Prepare Savio (#five)
 6. Kick off sims, monitor (#six)
 
-<a name="one">
 # 1: Acquire appropriate PDB files 
-</a>
+
 **Acquire original PDB**
 - Download a crystal strxr of dltBCDX
 - Open PyMol
