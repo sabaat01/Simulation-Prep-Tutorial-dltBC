@@ -18,18 +18,65 @@ Generic steps for setting up a simulation:
 6. Kick off sims, monitor
    
 # 1: Acquire appropriate PDB files
-Orient dltB into a membrane frame
-Align protein to an Orientations of Proteins in Membrane database file
-Before commencing with Protein Preparation Wizard, in pymol, you can align the new dltB structrue to the dltb in this PDB file
-Then export that newly aligned structure as a PDB file to be read by maestro
-Naomi used the 6BUG strxr from the OPM database just to have everything oriented such that x and y are the dimensions of the bilayer and z is the zoom in and zoom out dimension of the bilayer
-got the published structure(which has been oriented) and aligned the new structure to the oriented structure
+**Acquire original PDB**
+- Download a crystal strxr of dltBCDX
+- Open PyMol
+- Remove everything not needed
 
+Download the new dltB structure (by Harvard group) from google drive
+Open in PyMol
+Label by chain, color by chain
+Command: select chain B and DltBCDX
+Hide unselected
+A → copy selection to object → new → rename → dltB_alone
+
+**Orient into a membrane frame**
+We want everything oriented such that x and y are the 2D dimensions of the bilayer and z is the depth. Orientations of Proteins in Membrane (OPM) is a site that publishes structures of proteins from PDB oriented into a bilayer.
+- Download dltB's OPM database file
+	- 6BUG strxr link:
+- Export newly aligned structure in a format that is readbale my Maestro
+
+Open up OPM (Orientation of Proteins in Membranes) and find the 6BUG protein database file, download it
+In PyMOL: Open → find the 6BUG file and load into PyMOL alongside dltB_alone
+click all → A → zoom
+Color dltB_alone and 6BUG different colors for later comparison. Color the OPM file by segi or chain
+Optional: remove dltC (chain A) from the 6bug_from_OPM object, prior to aligning
+Command: align dltB_alone, 6bug_from_OPM
+Delete 6bug_from_OPM
+File → Export Molecule → (do i check or uncheck the retain pdb ids?) (can’t remember what I chose) → Selected: dltB_alone, not all → saved as a .pdb file
+importing into Maestro, it’s numbered the same, so must have retained?
 
 # 2: Clean and prepare the protein
 PDB file preparation [PyMOL / Maestro] --> we need to add hydrogen atoms to every residue in the protein; we need to check certain residues (e.g. glutamates, aspartates, etc. for their local environment and see if via pKa would affect protonation state). Add capping residues so that termini are neutraliized
 Add internal water molecules --> [upload our PDB file to Savio where we use the dowser command to add waters]
 Combine the water pdb file (dowserwat.pdb) with the exported PDB file and upload to Savio
+
+Protein Preparation [Maestro]
+Start a new X2Go session and specify resolution as either maximum possible or according to dimensions of Display 2
+Use cyberduck + instructions on mgcf FAQ page to transfer dltB aligned pdb to X2Go
+Create a new Maestro project and import structure: dltB_aligned
+Build → 3D Builder → +H (add hydrogens to every residue in the protein) (need to click P for Protein first) (also added H’s to the ligand, retained it)
+Open protein prep wizard → check SS1
+Confirm there are no issues
+Missing atoms: Asp 142 → check with Naomi, the side chain is incorrect
+steric clashes, improper torsions are also listed under Protein Reports
+Ramachandran plot shows 3-4 outliers
+Go to import and process window
+Check SS1 for correct parameters
+Go to review and modify window
+Possibly delete heteroatoms? (501) → issue resolved because we deleted it already
+Check protonation states
+Logic: Check certain residues for their local environment. what is the pKa of the lipid membranes?. Determine whether pKa of each residue would affect protonation state in the system
+The pka of a residue can change dramatically, which may affect your expected protonation state
+example: aspartic acid changes from pka 3.71 to pka 7.6
+you can examine which residues are in pockets that affect its pka (or the pkas of nearby residues)
+example: a lysine and aspartic acid near each other may favor protonated lysine + deprotonated aspartic acid
+Method:
+first pass Interactive Optimizer
+then download and hand to dowser
+second pass recheck assignments using Interactive Optimizer, then do a restrained minimization (usually Hydrogens only, OPLS4) 
+More notes written in blue notebook!
+Export prepared PDB file
 
 # 3: Add environment / solvate
 packmol-memgen
