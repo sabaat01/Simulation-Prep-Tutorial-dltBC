@@ -1,6 +1,6 @@
 # Simulation-Prep-Tutorial-dltBC
 walkthrough of preparing a new system for simulating, using dltBC as an example
-# Intro and Goals
+## Intro and Goals
 dltBCDX is a multi-protein complex embedded in the cell wall (membranes?) of (gram-positive?) bacteria and is involved in decorating the outer surface of the cell wall with D-alanine residues. These D-alanines start on the intracellular side and pass through the complex through covalent bond modifications. On the extracellular side, they attach to LTAs (lipotechoic acid) and provide the bacteria with a positive charge, which protects the bacteria from (degradation???).
 
 In this simulation, we are only modeling dltB, which is suspected to facilitate D-ala in jumping from dltC to dltX.
@@ -16,7 +16,7 @@ Generic steps for setting up a simulation:
 4. Generate starting files (#four)
 5. Prepare Savio (#five)
 6. Kick off sims, monitor (#six)
-<div></div>
+---
 
 # 1: Prepare protein
 
@@ -99,8 +99,7 @@ PDB file preparation [PyMOL / Maestro] --> we need to add hydrogen atoms to ever
 Add internal water molecules --> [upload our PDB file to Savio where we use the dowser command to add waters]
 Combine the water pdb file (dowserwat.pdb) with the exported PDB file and upload to Savio
 
-<div></div>
-
+---
 # 2: Add environment / solvate
 packmol-memgen
 
@@ -313,8 +312,7 @@ Last minute checks:
 - salt balanced
 - checkValidity
 
-<div></div>
-
+---
 # 4: Generate other input files
 ## Minimize, Heat, Equilibrate, Production
 lastly, we start our simulation
