@@ -17,9 +17,9 @@ Generic steps for setting up a simulation:
 5. Prepare Savio (#five)
 6. Kick off sims, monitor (#six)
 
-# 1: Acquire appropriate PDB files 
+# 1: Prepare protein
 
-**Acquire original PDB**
+## Acquire original PDB
 - Download a crystal strxr of dltBCDX
 - Open PyMol
 - Remove everything not needed
@@ -31,42 +31,57 @@ Command: select chain B and DltBCDX
 Hide unselected
 A → copy selection to object → new → rename → dltB_alone
 
-**Orient into a membrane frame**
+## Orient into a membrane frame
+
 We want everything oriented such that x and y are the 2D dimensions of the bilayer and z is the depth. Orientations of Proteins in Membrane (OPM) is a site that publishes structures of proteins from PDB oriented into a bilayer.
 - Download dltB's OPM database file
 	- 6BUG strxr link:
-- Export newly aligned structure in a format that is readbale my Maestro
+- In PyMOL: Open → find the 6BUG file and load into PyMOL alongside dltB_alone
+- Click all → A → zoom
+- Color dltB_alone and 6BUG different colors for later comparison. Color the OPM file by segi or chain
+- Optional: remove dltC (chain A) from the 6bug_from_OPM object, prior to aligning
+- Command: <align dltB_alone, 6bug_from_OPM>
+- Delete 6bug_from_OPM
+- File → Export Molecule → Check Retain PDB IDs → Selected: <dltB_alone>, __not__ all → Save as a .pdb file
 
-Open up OPM (Orientation of Proteins in Membranes) and find the 6BUG protein database file, download it
-In PyMOL: Open → find the 6BUG file and load into PyMOL alongside dltB_alone
-click all → A → zoom
-Color dltB_alone and 6BUG different colors for later comparison. Color the OPM file by segi or chain
-Optional: remove dltC (chain A) from the 6bug_from_OPM object, prior to aligning
-Command: align dltB_alone, 6bug_from_OPM
-Delete 6bug_from_OPM
-File → Export Molecule → (do i check or uncheck the retain pdb ids?) (can’t remember what I chose) → Selected: dltB_alone, not all → saved as a .pdb file
-importing into Maestro, it’s numbered the same, so must have retained?
+## Accessing Maestro Virtually
+Maestro requires a license. UC Berkeley's Chem Library can provide access through the Molecular Graphics Computation Facility (MGCF). You will have to access a virtual environment to run Maestro. Alternatively, you can visit the MGCF in person in Tan Hall and use Maestro directly on an MGCF monitor.
 
-# 2: Clean and prepare the protein
-PDB file preparation [PyMOL / Maestro] --> we need to add hydrogen atoms to every residue in the protein; we need to check certain residues (e.g. glutamates, aspartates, etc. for their local environment and see if via pKa would affect protonation state). Add capping residues so that termini are neutraliized
-Add internal water molecules --> [upload our PDB file to Savio where we use the dowser command to add waters]
-Combine the water pdb file (dowserwat.pdb) with the exported PDB file and upload to Savio
+- Assuming an account with the Chem Library MGCF is already set up, ensure the following basic items are complete:
+	- MobaXTerm installed
+	- starting password has been changed
+ 	- X2Go installed
+  	- Settings for X2Go and MobaXterm have been adjusted according to the MGCF instructions
+- Helpful tutorials for completing the above tasks:
+	- hhfhf
+	- hhhdhd
+- Start a new X2Go session. To use X2Go with a monitor, you must specify resolution in settings as either maximum possible or according to dimensions of Display 2 and select the monitor as Display 2
+  
+- Use Cyberduck to transfer the dltB aligned pdb to MGCF remote directory/account
+	- Instructions for accessing your MGCF remote directory via Cyberduck: MGCF FAQ page
+   
+- Open Maestro and create a new project
+- Import structure: dltB_aligned.pdb
 
-Protein Preparation [Maestro]
-Start a new X2Go session and specify resolution as either maximum possible or according to dimensions of Display 2
-Use cyberduck + instructions on mgcf FAQ page to transfer dltB aligned pdb to X2Go
-Create a new Maestro project and import structure: dltB_aligned
-Build → 3D Builder → +H (add hydrogens to every residue in the protein) (need to click P for Protein first) (also added H’s to the ligand, retained it)
-Open protein prep wizard → check SS1
-Confirm there are no issues
-Missing atoms: Asp 142 → check with Naomi, the side chain is incorrect
-steric clashes, improper torsions are also listed under Protein Reports
-Ramachandran plot shows 3-4 outliers
-Go to import and process window
-Check SS1 for correct parameters
-Go to review and modify window
-Possibly delete heteroatoms? (501) → issue resolved because we deleted it already
-Check protonation states
+### Add hydrogens
+- Select P for Protein
+- Build → 3D Builder → +H
+	- This will add hydrogens to every residue in the protein
+
+### Resolve any identified issues
+- Search for Protein Prep Wizard in the upper right menu and select once it appears
+- In the wizard → check SS1
+- Confirm there are no issues
+- Missing atoms -> check for any incorrectly loaded side chains
+- Examine all other Protein Reports. If something appears for every residue in the entire system it's probably fine. Steric clashes and improper torsions are okay because the system will be minimized to an optimal atomic arrangement later.
+- Check Ramachandran plot
+	- 3-4 outliers were visible
+- Go to Import and Process window
+- Check SS1 for correct parameters
+- Go to Review and Modify window
+- Delete heteroatoms: we had an atom that needed removing, but double-check before deleting stuff in general
+
+### Check protonation states
 Logic: Check certain residues for their local environment. what is the pKa of the lipid membranes?. Determine whether pKa of each residue would affect protonation state in the system
 The pka of a residue can change dramatically, which may affect your expected protonation state
 example: aspartic acid changes from pka 3.71 to pka 7.6
@@ -78,6 +93,10 @@ then download and hand to dowser
 second pass recheck assignments using Interactive Optimizer, then do a restrained minimization (usually Hydrogens only, OPLS4) 
 More notes written in blue notebook!
 Export prepared PDB file
+
+PDB file preparation [PyMOL / Maestro] --> we need to add hydrogen atoms to every residue in the protein; we need to check certain residues (e.g. glutamates, aspartates, etc. for their local environment and see if via pKa would affect protonation state). Add capping residues so that termini are neutraliized
+Add internal water molecules --> [upload our PDB file to Savio where we use the dowser command to add waters]
+Combine the water pdb file (dowserwat.pdb) with the exported PDB file and upload to Savio
 
 # 3: Add environment / solvate
 packmol-memgen
