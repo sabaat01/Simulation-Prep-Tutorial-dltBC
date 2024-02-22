@@ -101,28 +101,6 @@ Combine the water pdb file (dowserwat.pdb) with the exported PDB file and upload
 # 3: Add environment / solvate
 packmol-memgen
 
-# 4: Generate starting files
-Leap processing
-PDB File Compatibility Conversion: convert the prepared PDB file to a PDB file compatible with Leap, which is the Amber tool for simulation setup
-Combine the lipid membrane PDB file + the protein/water PDB file for processing by leap
-That should result in .prmtop and a .inpcrd file for simulation
-Force field
-amber’s ff14sb, tip3p
-determine overall charge on system
-no D-ala contribution
-the protein overall should have its own net charge
-in Maestro, make sure you cap the protein termini (option in the Protein Prep Wizard) to neutralize them
-in the final step using Leap, we add ions such that we neutralize the box
-usually Naomi does a quick back of the envelope calculation to determine how many Na and Cl to add
-adds enough Nas and Cls to reach 150 mM of each, but the exact quantity will probably be different
-
-Last minute checks:
-- salt balanced
-- checkValidity
-  
-# 5: Prepare Savio
-
-----
 Packmol-Memgen notes
 check what lipid modeling version we are using (Lipid 21 or higher?)
 instances when lipid simulations with AMBER give undesired results + best practices
@@ -230,15 +208,20 @@ Phosphatidylcholine PC
 Phosphatidylethanolamine PE
 Phosphatidylglycerol PG
 
-after running the packmol command, prepare to run tleap
+actually, packmol says it didn’t find the perfect configuration, but that what was found is likely good enough. can re-run it, but not necessary.
 
-actually, packmol says it didn’t find the perfect configuration, but that what was found is likely good enough. can re-run it, but not necessary. but first, let’s fix tleap’s issue.
-before running leap and ending up with .prmtop and .inpcrd and .pdb, remove atoms
+
+# 4: Generate starting files
+after running the packmol command, prepare to run tleao
 
 This will generate a .pdb file and leap.in file, which can be edited by the user if required.
 should we adjust coordinates? no
 adjust pdb file for compatibility with leap
 do we need a build.in → yes, naomi already has it (useful commands)
+
+
+but first, let’s fix tleap’s issue.
+before running leap and ending up with .prmtop and .inpcrd and .pdb, remove atoms (?? what is this about??? find out) something needed removing but can't remember what
 
 check useful commands for the full command set for tleap, and that’s it until HMR + charge calcs.
 
@@ -308,6 +291,26 @@ if we need to remove an atom from the system
 double check with parmed that we got down to zero
 do HMR
 
+
+Leap processing
+PDB File Compatibility Conversion: convert the prepared PDB file to a PDB file compatible with Leap, which is the Amber tool for simulation setup
+Combine the lipid membrane PDB file + the protein/water PDB file for processing by leap
+That should result in .prmtop and a .inpcrd file for simulation
+Force field
+amber’s ff14sb, tip3p
+determine overall charge on system
+no D-ala contribution
+the protein overall should have its own net charge
+in Maestro, make sure you cap the protein termini (option in the Protein Prep Wizard) to neutralize them
+in the final step using Leap, we add ions such that we neutralize the box
+usually Naomi does a quick back of the envelope calculation to determine how many Na and Cl to add
+adds enough Nas and Cls to reach 150 mM of each, but the exact quantity will probably be different
+
+Last minute checks:
+- salt balanced
+- checkValidity
+
+## Minimize, Heat, Equilibrate, Production
 lastly, we start our simulation
 Bilayer depression/buckling
 Berendsen barostat recommended rather than Monte Carlo
@@ -317,8 +320,10 @@ Using a switching function for non-bonded interactions instead of a hard LJ cuto
 sam do thinking on backing thing sup to wasabi and do a tutorial on how partitions / external hard drives work
 
 tleap will give a warning if net charge is not zero
-
-
+change cut to 10.0
+what is the ref file set to (Min_3 vs prev.rst)
+  
+# 5: Prepare Savio
 for savio setups:
 folder structure:
 sims → dltBCDX
@@ -357,9 +362,3 @@ then it starts Prod_1. once Prod_1 is done, it calls a regex expression to figur
 
 to figure out the available account, QoS, and partition to use:
 sacctmgr -p show associations user=$USER
-
-
-
-
-
-change cut to 10.0
