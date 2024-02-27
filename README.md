@@ -71,34 +71,50 @@ Maestro requires a license. UC Berkeley's Chem Library can provide access throug
    
 - Import structure: dltB_aligned.pdb
 
+## Representations, remove ligands if needed
+- Style --> Color Atoms by Chain Name
+- Style --> +Ribbons --> Color by Chain Name
+  
+In the dlt_BC structure, there are ligands such as PNS (phosphoantethiene group) and LMT (detergent). We want to remove these for now.
+- On the left-hand window named "Structure Hierarchy", expend the "Ligands" category.
+- Right click on the ligands you wish to remove and click "delete atoms"
+  
 ## Add hydrogens
 - Select P for Protein
 - Build → 3D Builder → +H
 	- This will add hydrogens to every residue in the protein
 
 ## Resolve any identified issues
-- Search for Protein Prep Wizard in the upper right menu and select once it appears
-- In the wizard → check SS1
-- Confirm there are no issues
-- Missing atoms -> check for any incorrectly loaded side chains
-- Examine all other Protein Reports. If something appears for every residue in the entire system it's probably fine. Steric clashes and improper torsions are okay because the system will be minimized to an optimal atomic arrangement later.
-- Check Ramachandran plot
-	- 3-4 outliers were visible
-- Go to Import and Process window
-- Check SS1 for correct parameters
-- Go to Review and Modify window
-- Delete heteroatoms: we had an atom that needed removing, but double-check before deleting stuff in general
+- Tasks (upper right) --> Search for Protein Prep Wizard and select
+- Import and Process Window --> Deselect everything, EXCEPT:
+	- Add hydrogens
+ 	- Fill in missing side chains using Prime
+ 	- Cap termini
+ 	- You can also select "Create disulfide bonds". However, there is only 1 cysteine total among dltB and dltC, so I did not bother selecting this for either the dlt_B or the dlt_BC prep.
+  - Click Preprocess. A window may pop up confirming that you want to fill in missing side chains using Prime. Click Continue.
+- View Problems: examine issues and decide if anything needs addressing
+- Protein Reports:
+	- Ignore everything except Missing Atoms. Check for improper or missing side chains. If you used Prime, there should be no missing atoms.
+ 	- If something in reports appears for every residue in the entire system it's probably fine. Steric clashes, improper torsions, and such are okay because the system will be minimized to an optimal arrangement later.
+- Ramachandran Plot: Examine any outliers. Glycine and methionine are common outliers. Nothing to worry about.
+- Review and Modify: Since we already removed the two ligands, nothing should appear here. If you forgot to delete a heteroatom it will be noted here. Delete it now.
 
 ## Check protonation states
 We want to examine the local environment of the protein's residues. Some residues have charge states that will be influenced by whether they are in a particularly positively or negatively charged region of the protein. 
 We cannot depend on the generic charge state of these residues, because their pKa value will be affected by the region they inhabit. If a residue's pKa shifts dramatically, it may need to occupy a different protonation state from expected.
 Example: aspartic acid (D) changing from pKa 3.71 to pKa 7.6.  A lysine (K) and aspartic acid (D) near each other may favor a protonated lysine and deprotonated aspartic acid.
 Goal: use Maestro to examine which residues are in pockets that may affect their pKa, or the pKas of nearby residues
-
-- Interactive Optimizer - first pass
-- Export PDB for Maestro and run dowser
-- Recheck assignments using Interactive Optimizer again
-- Perform a Restrained Minimization (hydrogens only, OPLS4)
+- Refine:
+	- select Label pKas
+	- Run Interactive Optimizer (new window opens)
+   		- Select Label pKas, use PROPKA
+     		- click Analyze Network
+  		- click on the first species and click through possible states using the "<" ">" buttons. Repeat for every species in the list. Navigate using up and down arrow keys.
+- Optimize charge states:
+	- Gln  
+	- Export PDB from Maestro and run dowser
+	- Recheck assignments using Interactive Optimizer again
+	- Perform a Restrained Minimization (hydrogens only, OPLS4)
 More notes written in blue notebook!
 Want to check glu, asp, lys, and his. His is its own beast
 - Export prepared PDB file
