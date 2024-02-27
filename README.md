@@ -71,20 +71,19 @@ Maestro requires a license. UC Berkeley's Chem Library can provide access throug
    
 - Import structure: dltB_aligned.pdb
 
-## Representations, remove ligands if needed
+## Preliminary cleanup: change representation, remove unwanted ligands, add hydrogens
 - Style --> Color Atoms by Chain Name
 - Style --> +Ribbons --> Color by Chain Name
   
 In the dlt_BC structure, there are ligands such as PNS (phosphoantethiene group) and LMT (detergent). We want to remove these for now.
 - On the left-hand window named "Structure Hierarchy", expend the "Ligands" category.
 - Right click on the ligands you wish to remove and click "delete atoms"
-  
-## Add hydrogens
+
 - Select P for Protein
 - Build → 3D Builder → +H
 	- This will add hydrogens to every residue in the protein
 
-## Resolve any identified issues
+## Resolve issues
 - Tasks (upper right) --> Search for Protein Prep Wizard and select
 - Import and Process Window --> Deselect everything, EXCEPT:
 	- Add hydrogens
@@ -97,7 +96,7 @@ In the dlt_BC structure, there are ligands such as PNS (phosphoantethiene group)
 	- Ignore everything except Missing Atoms. Check for improper or missing side chains. If you used Prime, there should be no missing atoms.
  	- If something in reports appears for every residue in the entire system it's probably fine. Steric clashes, improper torsions, and such are okay because the system will be minimized to an optimal arrangement later.
 - Ramachandran Plot: Examine any outliers. Glycine and methionine are common outliers. Nothing to worry about.
-- Review and Modify: Since we already removed the two ligands, nothing should appear here. If you forgot to delete a heteroatom it will be noted here. Delete it now.
+- Review and Modify: Since we already removed the two ligands, nothing should appear here. If you forgot to delete a heteroatom, delete it now.
 
 ## Check protonation states
 We want to examine the local environment of the protein's residues. Some residues have charge states that will be influenced by whether they are in a particularly positively or negatively charged region of the protein. 
