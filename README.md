@@ -16,7 +16,6 @@ Generic steps for setting up a simulation:
 4. Generate starting files
 5. Prepare Savio
 6. Kick off sims, monitor
----
 
 # 1: Prepare protein
 
@@ -68,7 +67,6 @@ Maestro requires a license. UC Berkeley's Chem Library can provide access throug
 	- If it still hasn't opened, check if you have any processes running across various workstations that may be impeding opening.
 	- Helpful commands to type into X2Go terminal (use with care): ps -x, ws_ps, kill -9 PID, ws_kill, ssh other_workstation_name, pkill -U username
 	- If still not working after several attempts to examine processes, do something else for a while and come back to it. :(
- ---
 
 ## Preliminary cleanup: change representation, remove unwanted ligands, add hydrogens
 - Import structure: dltB_aligned.pdb
