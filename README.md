@@ -59,7 +59,7 @@ Maestro requires a license. UC Berkeley's Chem Library can provide access throug
 - Start a new X2Go session. To use X2Go with a monitor, you must specify resolution in settings as either maximum possible or according to dimensions of Display 2 and select the monitor as Display 2. Dimensions of Display 2 are 1920 x 1080.
   
 - Use Cyberduck to transfer the dltB aligned pdb to MGCF remote directory/account
-	- SFTP protocol, Port 22 <MGCF workstation name>.cchem.berkeley.edu, username, password
+	- SFTP protocol, Port 22, (insert MGCF workstation name such as "nano").cchem.berkeley.edu, username, password
 	- Can select into the folder you want on the remote filesystem, then click upload on the upper right corner. Navigate through your local filesystem and select the file(s) you want.
    
 - Open Maestro and create a new project
