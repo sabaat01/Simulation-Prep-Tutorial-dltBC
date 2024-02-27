@@ -63,10 +63,11 @@ Maestro requires a license. UC Berkeley's Chem Library can provide access throug
    
 - Open Maestro in X2Go and create a new project.
 - NOTE: If Maestro is not opening, there may be an issue with the computing cluster.
-	- Work on something else for 10 minutes.
+	- Open terminal, type "maestro", it should note that a process has been added.
+ 	- Work on something else for 10 minutes.
 	- If it still hasn't opened, check if you have any processes running across various workstations that may be impeding opening.
 	- Helpful commands to type into X2Go terminal (use with care): ps -x, ws_ps, kill -9 PID, ws_kill, ssh other_workstation_name, pkill -U username
-	- If still not working, do something else for the day and try again tomorrow :((( or find another Maestro license besides MGCF
+	- If still not working after several attempts to examine processes, do something else for a while and come back to it. :(
    
 - Import structure: dltB_aligned.pdb
 
