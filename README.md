@@ -10,31 +10,29 @@ We are going to prepare dltB using various software packages, then run the sims 
 dltB has 415-430 residues depending on species. We will be modeling the full protein within a POPC bilayer.
 
 Generic steps for setting up a simulation:
-1. Acquire appropriate PDB files (#one)
-2. Clean and prepare the protein (#two)
-3. Add environment / solvate (#three)
-4. Generate starting files (#four)
-5. Prepare Savio (#five)
-6. Kick off sims, monitor (#six)
+1. Acquire appropriate PDB files
+2. Clean and prepare the protein
+3. Add environment / solvate
+4. Generate starting files
+5. Prepare Savio
+6. Kick off sims, monitor
 ---
 
 # 1: Prepare protein
 
 ## Acquire original PDB
-- Download a crystal strxr of dltBCDX
-- Open PyMol
-- Remove everything not needed
 
-- Download the new dltB structure (by Harvard group) from google drive
+- Download the new dltB structure (by Harvard group) from google drive or download crystral structure from PDB
 - Open in PyMol
 - Label by chain, color by chain
-- Command: select chain B and DltBCDX
-- Hide unselected
-- A → copy selection to object → new → rename → dltB_alone
+- Select only what is needed:
+	- Command: select (chain B) and DltBCDX
+	- Hide unselected
+	- A → copy selection to object → new → rename → dltB_alone
 
 ## Orient into a membrane frame
 
-We want everything oriented such that x and y are the 2D dimensions of the bilayer and z is the depth. Orientations of Proteins in Membrane (OPM) is a site that publishes structures of proteins from PDB oriented into a bilayer.
+We want everything oriented such that x and y are the 2D dimensions of the bilayer and z is the depth. Orientations of Proteins in Membrane (OPM) is a site that publishes structures of proteins from PDB oriented into a bilayer. If you downloaded a crystral structure from PDB, you may be able to just download the corresponding OPM file and delete the bilayer markers.
 - Download dltB's OPM database file
 	- 6BUG strxr link:
 - In PyMOL: Open → find the 6BUG file and load into PyMOL alongside dltB_alone
@@ -50,19 +48,26 @@ Maestro requires a license. UC Berkeley's Chem Library can provide access throug
 
 - Assuming an account with the Chem Library MGCF is already set up, ensure the following basic items are complete:
 	- MobaXTerm installed
-	- starting password has been changed
+	- starting password has been changed and new password noted down
  	- X2Go installed
-  	- Settings for X2Go and MobaXterm have been adjusted according to the MGCF instructions
+  	- Settings for X2Go and MobaXterm have been adjusted according to the MGCF instructions.
 - Helpful tutorials for completing the above tasks:
-	- hhfhf
-	- hhhdhd
+	- New User Instructions: https://docs.google.com/document/d/10lAWGWpGKvwPK3eGNj6TzcoMzOCtDQZC3dr--E7SeYM/edit
+  	- MGCF FAQs: https://mgcf.cchem.berkeley.edu/mgcf/faqs/
+	- Tips on Using Maestro via X2Go: https://docs.google.com/document/d/1kWwOh6VPb9CJRTmhdaGPFgHM5Wg4Ql7vdILsjIiNjPM/view
 - Start a new X2Go session. To use X2Go with a monitor, you must specify resolution in settings as either maximum possible or according to dimensions of Display 2 and select the monitor as Display 2. Dimensions of Display 2 are 1920 x 1080.
   
 - Use Cyberduck to transfer the dltB aligned pdb to MGCF remote directory/account
 	- SFTP protocol, Port 22, (insert MGCF workstation name such as "nano").cchem.berkeley.edu, username, password
-	- Can select into the folder you want on the remote filesystem, then click upload on the upper right corner. Navigate through your local filesystem and select the file(s) you want.
+	- Select the folder you want in the remote filesystem, then click upload in the upper right corner. Navigate through your local filesystem and select the file(s) you want to add to the remote.
    
-- Open Maestro and create a new project
+- Open Maestro in X2Go and create a new project.
+- NOTE: If Maestro is not opening, there may be an issue with the computing cluster.
+	- Work on something else for 10 minutes.
+	- If it still hasn't opened, check if you have any processes running across various workstations that may be impeding opening.
+	- Helpful commands to type into X2Go terminal (use with care): ps -x, ws_ps, kill -9 PID, ws_kill, ssh other_workstation_name, pkill -U username
+	- If still not working, do something else for the day and try again tomorrow :((( or find another Maestro license besides MGCF
+   
 - Import structure: dltB_aligned.pdb
 
 ## Add hydrogens
