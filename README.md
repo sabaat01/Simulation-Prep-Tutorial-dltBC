@@ -56,29 +56,29 @@ Maestro requires a license. UC Berkeley's Chem Library can provide access throug
   	- MGCF FAQs: https://mgcf.cchem.berkeley.edu/mgcf/faqs/
 	- Tips on Using Maestro via X2Go: https://docs.google.com/document/d/1kWwOh6VPb9CJRTmhdaGPFgHM5Wg4Ql7vdILsjIiNjPM/view
 - Start a new X2Go session. To use X2Go with a monitor, you must specify resolution in settings as either maximum possible or according to dimensions of Display 2 and select the monitor as Display 2. Dimensions of Display 2 are 1920 x 1080.
-  
+---
 - Use Cyberduck to transfer the dltB aligned pdb to MGCF remote directory/account
 	- SFTP protocol, Port 22, (insert MGCF workstation name such as "nano").cchem.berkeley.edu, username, password
 	- Select the folder you want in the remote filesystem, then click upload in the upper right corner. Navigate through your local filesystem and select the file(s) you want to add to the remote.
-   
-- Open Maestro in X2Go and create a new project.
+---
+- Open Maestro in X2Go and create and title a new project.
 - NOTE: If Maestro is not opening, there may be an issue with the computing cluster.
 	- Open terminal, type "maestro", it should note that a process has been added.
  	- Work on something else for 10 minutes.
 	- If it still hasn't opened, check if you have any processes running across various workstations that may be impeding opening.
 	- Helpful commands to type into X2Go terminal (use with care): ps -x, ws_ps, kill -9 PID, ws_kill, ssh other_workstation_name, pkill -U username
 	- If still not working after several attempts to examine processes, do something else for a while and come back to it. :(
-   
-- Import structure: dltB_aligned.pdb
+   ---
 
 ## Preliminary cleanup: change representation, remove unwanted ligands, add hydrogens
+- Import structure: dltB_aligned.pdb
 - Style --> Color Atoms by Chain Name
 - Style --> +Ribbons --> Color by Chain Name
-  
-In the dlt_BC structure, there are ligands such as PNS (phosphoantethiene group) and LMT (detergent). We want to remove these for now.
+---
+In the dlt_BC structure, there are ligands such as PNS (phosphopantethiene group) and LMT (detergent). We want to remove these for now.
 - On the left-hand window named "Structure Hierarchy", expend the "Ligands" category.
 - Right click on the ligands you wish to remove and click "delete atoms"
-
+---
 - Select P for Protein
 - Build → 3D Builder → +H
 	- This will add hydrogens to every residue in the protein
