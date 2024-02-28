@@ -87,10 +87,11 @@ In the dlt_BC structure, there are ligands such as PNS (phosphopantethiene group
 	- Add hydrogens
  	- Fill in missing side chains using Prime
  	- Cap termini
-    * ## Cap termini*
-**Goal is to neutralize the protein backbone but making an adjustment to the C and N-terminals. These are the ACE and NME caps, which add a methyl group to the end of the protein chain. You can google ACE and NME online to see the exact conformation adopted.**
 
-**do we add waters in Maestro or Savio? Or both?**
+fix later:
+Cap termini
+Goal is to neutralize the protein backbone but making an adjustment to the C and N-terminals. These are the ACE and NME caps, which add a methyl group to the end of the protein chain. You can google ACE and NME online to see the exact conformation adopted.
+do we add waters in Maestro or Savio? Or both?
 
  	- You can also select "Create disulfide bonds". However, there is only 1 cysteine total among dltB and dltC, so I did not bother selecting this for either the dlt_B or the dlt_BC prep.
   - Click Preprocess. A window may pop up confirming that you want to fill in missing side chains using Prime. Click Continue.
@@ -106,6 +107,7 @@ We want to examine the local environment of the protein's residues. Some residue
 We cannot depend on the generic charge state of these residues, because their pKa value will be affected by the region they inhabit. If a residue's pKa shifts dramatically, it may need to occupy a different protonation state from expected.
 Example: aspartic acid (D) changing from pKa 3.71 to pKa 7.6.  A lysine (K) and aspartic acid (D) near each other may favor a protonated lysine and deprotonated aspartic acid.
 Goal: use Maestro to examine which residues are in pockets that may affect their pKa, or the pKas of nearby residues
+
 - (Round One) Refine:
 	- select Label pKas
 	- Run Interactive Optimizer (new window opens)
@@ -113,9 +115,29 @@ Goal: use Maestro to examine which residues are in pockets that may affect their
      		- click Analyze Network
   		- click on the first species and click through possible states using the "<" ">" buttons. Repeat for every species in the list and optimize each charge state. Navigate to next species using up and down arrow keys.
 - How to optimize charge states:
-	- Gln
- - 
+1. general notes:
+  	No Flip residues: retain original state. highly unlikely that you need to change anything
+   
+3. common residues that pop up
+	- Gln (Glutamine, Q, polar uncharged)
+ 		- no flip, ignore
+ 	- Asn (Asparagine, N, polar uncharged):
+  		- no flip, ignore
+  	- Lys (Lysine, K, positive charge)
+ 		- can generally ignore, however, consider whether there are more favorable H-bond interactions in a new state
+   		- if there are two possible states for lysine (or was it His?), you may need to set up two different simulation sets and analyze both datasets
+  	- Tyr (Tyrosine, Y, hydrophobic)
+	- Cys (Cysteine, C, special case)
+	- Ser (Serine, S, polar uncharged)
+	- Thr (Threonine, T, polar uncharged)
+	- His (Histidine, H, positive charge)
+ 		- has 3 possible states: HIE (H on one of the two N's), HID (H on the opposite N), HIP (positively charged, both N's have an H)
+   		- The extra (+) charge in HIP is not favorable. Only select the HIP state if it will induce the formation of a salt bridge. (How to define a salt bridge?)
+     		- If the pKa of His has been shifted by its surroundings to be >7-8, then you can protonate it. This usually occurs if there's an acidic residue (such as Asp/D or Glu/E) next to it encouraging a salt bridge.
+	- Asp (Aspartic Acid, D, negative charge)
+	- Glu (Glutamic Acid, E, negative charge)
 - Export PDB from Maestro
+---
 - (Round Two) Run dowser
 - (Round Three) Recheck assignments using Interactive Optimizer again
 	- Perform a Restrained Minimization (hydrogens only, OPLS4)
