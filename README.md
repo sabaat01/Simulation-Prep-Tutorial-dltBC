@@ -19,6 +19,16 @@ Generic steps for setting up a simulation:
 
 # 1: Prepare protein
 
+From https://erikh.gitlab.io/group-page/protsetup.html:
+
+Check (use open-office chart):
+
+Is the protein a monomer, dimer ? or n-mer?
+Are there Cys-Cys- crosslinks
+Are there missing parts of the structure (the first amino acids are often not resolved, check REMARK 465)
+Are the non-standard residues?
+At what pH was the structure obtained?
+
 ## Acquire original PDB
 
 - Download the new dltB structure (by Harvard group) from google drive or download crystral structure from PDB
@@ -102,7 +112,14 @@ do we add waters in Maestro or Savio? Or both?
 - Ramachandran Plot: Examine any outliers. Glycine and methionine are common outliers. Nothing to worry about.
 - Review and Modify: Since we already removed the two ligands, nothing should appear here. If you forgot to delete a heteroatom, delete it now.
 
+Save a pdb before optimization
+
 ## Check protonation states
+Ref/source: https://computecanada.github.io/molmodsim-amber-md-lesson/11-Protonation_State/index.html
+"The protonation states of titratable amino acids (Arg, Lys, Tyr, Cys, His, Glu, Asp) depend on the local micro-environment and pH. A highly polar microenvironment will stabilize the charged form, while a less polar microenvironment will favor the neutral form. At physiological pH, TYR, LYS, CYS, and ARG are almost always in their standard protonation states, while GLU, ASP, and HIS can be in non-standard forms."
+"PROPKA3.0 is the empirical pKa prediction software."
+
+
 We want to examine the local environment of the protein's residues. Some residues have charge states that will be influenced by whether they are in a particularly positively or negatively charged region of the protein. 
 We cannot depend on the generic charge state of these residues, because their pKa value will be affected by the region they inhabit. If a residue's pKa shifts dramatically, it may need to occupy a different protonation state from expected.
 Example: aspartic acid (D) changing from pKa 3.71 to pKa 7.6.  A lysine (K) and aspartic acid (D) near each other may favor a protonated lysine and deprotonated aspartic acid.
@@ -117,6 +134,9 @@ Goal: use Maestro to examine which residues are in pockets that may affect their
 - How to optimize charge states:
 1. general notes:
   	No Flip residues: retain original state. highly unlikely that you need to change anything
+   check if Asp and Glu, Lys, Arg, and Tyr have pKa below 7
+   Check burried charges through visualization
+   Decide on protonation state for Asp, Glu, Lys, Arg, Tyr and His
    
 3. common residues that pop up
 	- Gln (Glutamine, Q, polar uncharged)
