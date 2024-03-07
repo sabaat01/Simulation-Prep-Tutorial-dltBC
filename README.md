@@ -181,8 +181,8 @@ Example: aspartic acid (D) changing from pKa 3.71 to pKa 7.6.  A lysine (K) and 
 - (Round Four) Refine --> Restrained Minimization (hydrogens only, OPLS4)
 - Label new structure with "min"
 - Export prepared structure as PDB file from Maestro to remote. Download PDB from remote to local, then scp to Savio
-  
-- What is Cap Termini?
+---
+What is Cap Termini?
 The goal is to neutralize the protein backbone by adjusting the C and N-termini and spreading their charge as evenly as possible.
 - N terminus (first residue): the NH2 group gets a carboxyl (acetyl, ACE) tacked on.
 - C terminus (last residue): the carboxyl gets an amide (N-methyl, NME) tacked on.
@@ -191,9 +191,9 @@ The goal is to neutralize the protein backbone by adjusting the C and N-termini 
 # 2: Add environment/solvate
 ## Adjust PDB for compatibility with Leap
 - Use the pdbcleanup.txt file as reference
-Issues I`ve run into before:
+Issues I've run into before:
 - Incorrect spacings between columns due to having made edits
-- Change NME`s CA to a CH3
+- Change NME's CA to a CH3
 - Change HOH to WAT
 If you need to check for errors, no need to re-run packmol-memgen, just send tleap the original edited pdb file, confirm it`s correct, then go back and re-start from packmol
   
@@ -208,10 +208,12 @@ For our system, we have already added internal waters using dowser. Now we will 
 We will perform this step using packmol-memgen. Here is the introductory paper to the software, it is very short and informative: https://pubs.acs.org/doi/epdf/10.1021/acs.jcim.9b00269.  
 Call run packmol-memgen - - help for a detailed list of parameters  
 Can also look up an Amber manual and navigate to the packmol-memgen section. Amber21 manual (link: https://ambermd.org/doc12/Amber21.pdf) --> section 13.6, page 220.  
+
   
 Here is the packmol command we will use:
 `source activate AmberTools 21`
 ```packmol-memgen --pdb dlt_BC_oriented_prepped_dowsed_capped_opt_min.pdb --lipids POPC --ratio 1 --preoriented --notprotonate --nottrim --salt --salt_c Na+ --saltcon 0.15 --dist 15 --dist_wat 17.5 --ffwat tip3p --ffprot ff14SB --fflip lipid17 --nloop 50```
+
   
 - lipid bilayer: of POPC with a ratio of 1:1
 - preoriented: into a bilayer, so that packmol does not try to rotate our structure for us
@@ -221,6 +223,7 @@ Here is the packmol command we will use:
 - dist_wat: distance between edge of bilayer and edge of box --> this is the width of the water buffer included around our lipid bilayer
 - ff: list force fields of the water molecules, protein, and lipids. To use combinations of lipids to more accurately resemble a Gram-positive bacterium cell well, you must have Lipid21 or higher installed.
 - nloop: packing iterations per molecule, usually 20, but I set it to 50 to see if we could get any better minimizing. This is not necessary, and may make packmol-memgen intolerably slow.
+
   
 Notes on packmol-memgen:
 - Takes a long time to run. Make sure your connection to the HPCC does not time out, or laptop shut down.
@@ -228,9 +231,9 @@ Notes on packmol-memgen:
 - Might populate lipids into the core of your transmembrane protein! Visualize in VMD (after generating a trajectory) and ensure this is not the case!
   
 Output of packmol-memgen: pdb file containing protein structure, internal waters, bilayer, ions, and water box  
+
   
-"A recent study has found that large membrane patches buckle using the Monte Carlo barostat, whilst smaller patches show a systematic depression of the area per lipid. The buckling behaviour is corrected using a force-switch for non-bonded interactions....The area per lipid depression is also found with Lipid21. However, POPC remains near the experimental area per lipid. The Berendsen barostat is thus preferable over the Monte Carlo barostat when simulation time allows."
-  
+__Edit later: new bilayer__
 The dimensions of the system are by default estimated by packmol-memgen based on the size of the protein to be packed.
 PG:PE:CL (65:27:8)
 ```packmol-memgen --pdb dltB_aligned_prepped_dowsed_minimized.pdb --lipids POPG:POPE:CL --ratio 65:27:8 --preoriented --notprotonate --nottrim --log packmol_log.txt --salt --salt_c Na+ --saltcon 0.15 --dist 12 --dist_wat 20```
@@ -245,7 +248,6 @@ PG:PE:CL (65:27:8)
 
 
 --keep --parametrize (to load in the cardiolipin parameter files)
-—-
 
 system 1: POPC
 system 2: POPG/E + cardiolipin bilayer
@@ -255,6 +257,7 @@ Oleic acid | 18:1(9) O
 Phosphatidylcholine PC
 Phosphatidylethanolamine PE
 Phosphatidylglycerol PG
+  __end of edit region__
 
 # 3: Parametrize system (prmtop, inpcrd)
 First create an input file for running tleap.
@@ -297,6 +300,7 @@ Then call:
 tleap -f build.in
 ```
 
+__edits restart here__
 should we adjust coordinates? no
 before running leap and ending up with .prmtop and .inpcrd and .pdb, remove atoms (?? what is this about??? find out) something needed removing but can`t remember what
 check useful commands for the full command set for tleap, and that’s it until HMR + charge calcs.
@@ -339,6 +343,7 @@ sims → dltBCDX
 ## Minimize, Heat, Equilibrate, Production
 lastly, we start our simulation
 Bilayer depression/buckling
+"A recent study has found that large membrane patches buckle using the Monte Carlo barostat, whilst smaller patches show a systematic depression of the area per lipid. The buckling behaviour is corrected using a force-switch for non-bonded interactions....The area per lipid depression is also found with Lipid21. However, POPC remains near the experimental area per lipid. The Berendsen barostat is thus preferable over the Monte Carlo barostat when simulation time allows."
 Berendsen barostat recommended rather than Monte Carlo
 If using Monte Carlo, a 10 Å or less LJ cutoff can induce buckling in large patches (200x200 A). While smaller patches do not undergo extreme distortion, they do deviate from experimentally derived parameters due to the effective compression.
 Using a switching function for non-bonded interactions instead of a hard LJ cutoff avoids this undesirable result.
