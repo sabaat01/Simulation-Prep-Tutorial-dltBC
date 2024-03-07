@@ -207,6 +207,11 @@ FATAL:  Atom .R<WAT 437>.A<OW 4> does not have a type.
 
 Replaced HB2 (18) in Met (2) with H2? → there is also just an H2 there at pos 15
 782 HG is not understood CYX (46)
+There is a bond of 4.542 angstroms between CB and HB3 atoms:
+-------  .R<NMET 4>.A<CB 7> and .R<NMET 4>.A<HB3 9>
+FATAL:  Atom .R<ET 3>.A<H 1> does not have a type.
+FATAL:  Atom .R<NME 419>.A<CA 7> does not have a type.
+FATAL:  Atom .R<NME 500>.A<CA 7> does not have a type.
 
 everything fixed!!!
 PDB File Compatibility Conversion: convert the prepared PDB file to a PDB file compatible with Leap, which is the Amber tool for simulation setup
