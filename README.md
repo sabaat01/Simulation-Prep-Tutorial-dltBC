@@ -13,21 +13,21 @@ For both simulations, we will be using a POPC bilayer to simulate the bacterium 
 
 Steps for setting up a simulation:
 1. Prepare protein
-	Acquire appropriate PDB files
-	Clean and prepare the protein
+	- Acquire appropriate PDB files
+	- Clean and prepare the protein
 2. Add environment / solvate
-   	Add waters, ions, and bilayer/water box
+   	- Add waters, ions, and bilayer/water box
 3. Generate starting files
-	Parameter + inpcrd files
-	Eq, Min, and Heat files
-	bash file script for running sim
+	- Parameter + inpcrd files
+	- Eq, Min, and Heat files
+	- bash file script for running sim
 4. Prepare Savio
-	folder for each replicate, duplicate input files, set up symlinks, specify run params
+	- folder for each replicate, duplicate input files, set up symlinks, specify run params
 5. Kick off sims, monitor
-   	common debug issues (bilayer populating, pdb file naming, capping before dowsing, ..)
-   	tips for monitoring/checking statuses
-   	how to download trajectories and visualize
-   	description of the various ligands
+   	- common debug issues (bilayer populating, pdb file naming, capping before dowsing, ..)
+   	- tips for monitoring/checking statuses
+   	- how to download trajectories and visualize
+   	- description of the various ligands
    	
 # 1: Prepare protein
 From https://erikh.gitlab.io/group-page/protsetup.html:
@@ -170,19 +170,17 @@ Example: aspartic acid (D) changing from pKa 3.71 to pKa 7.6.  A lysine (K) and 
   	- scp dowserwat.pdb onto local filesystem, then upload to remote using MobaXTerm
   	- Import Structure into Maestro --> select dowserwat.pdb to import
   	- Shift+Select both the "preprocessed" pdb from prior and "dowserwat.pdb" --> right click --> select "Merge" from menu
-  	- Rename the merged structure "prepped_dowsed_noCaps"
+  - Rename the merged structure "prepped_dowsed_noCaps"
   	  
 - (Round Three) Recheck protonation
 	- Protein Prep Wizard --> Import and Process tab --> check Cap termini --> Preprocess
  	- Add "capped" the name of this new structure. Make sure you have the correct structure selected. Double check on problems, missing atoms, and review & modify tab.
   	- Refine tab --> re-run the Interactive Optimizer now with capped + dowsed protein. Adust charge states as needed.
-  	- Label new structure with "opt"
+  - Label new structure with "opt"
   	  
 - (Round Four) Refine --> Restrained Minimization (hydrogens only, OPLS4)
-	- Label new structure with "min"
-   
-- Export prepared PDB file from Maestro to remote
-- Download PDB from remote to local, then scp to Savio
+- Label new structure with "min"
+- Export prepared structure as PDB file from Maestro to remote. Download PDB from remote to local, then scp to Savio
 
 - What is Cap Termini?
 The goal is to neutralize the protein backbone by adjusting the C and N-termini and spreading their charge as evenly as possible.
