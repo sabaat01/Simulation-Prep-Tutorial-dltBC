@@ -218,7 +218,7 @@ packmol-memgen --pdb dlt_BC_oriented_prepped_dowsed_capped_opt_min.pdb --lipids 
 - dist: minimum distance to the box border in x,y,z directions
 - dist_wat: distance between edge of bilayer and edge of box --> this is the width of the water buffer included around our lipid bilayer
 - ff: list force fields of the water molecules, protein, and lipids. To use combinations of lipids to more accurately resemble a Gram-positive bacterium cell well, you must have Lipid21 or higher installed.
-- nloop: packing iterations per molecule, usually 20, but I set it to 50 to see if we could get any better minimizing. This is not necessary, and may make packmol-memgen intolerably slow.
+- nloop: packing iterations per molecule, usually 20, but I set it to 50 to see if we could get any better minimizing. This is not necessary, and may make packmol-memgen intolerably slow.```
 
 Notes on packmol-memgen:
 - Takes a long time to run. Make sure your connection to the HPCC does not time out, or laptop shut down.
