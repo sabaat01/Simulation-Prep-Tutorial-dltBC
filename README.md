@@ -120,8 +120,7 @@ In the dlt_BC structure, there are ligands such as PNS (phosphopantethiene group
 
 ## Check protonation states
 We want to examine the local environment of each of the protein's polar/charged residues.
-
-From: https://computecanada.github.io/molmodsim-amber-md-lesson/11-Protonation_State/index.html
+From: https://computecanada.github.io/molmodsim-amber-md-lesson/11-Protonation_State/index.html  
 "The protonation states of titratable amino acids (Arg, Lys, Tyr, Cys, His, Glu, Asp) depend on the local micro-environment and pH. A highly polar microenvironment will stabilize the charged form, while a less polar microenvironment will favor the neutral form."
 
 Some residues have charge states that will be influenced by whether they are in a particularly positively or negatively charged region of the protein. We cannot depend on the generic charge state of these residues, because their pKa value will be affected by the region they inhabit. If a residue`s pKa shifts dramatically, it may need to occupy a different protonation state from what is expected.
