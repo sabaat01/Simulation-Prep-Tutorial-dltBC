@@ -3,13 +3,13 @@ walkthrough of preparing a new system for simulating, using dltBC as an example
 ## Intro and Goals
 dltBCDX is a multi-protein complex embedded in the cell wall of gram-positive bacteria and is involved in decorating the outer surface of the cell wall with D-alanine residues. These D-alanines attach to LTAs (lipotechoic acid) on the extracellular surface and provide the bacterium with a positive charge, which protects the bacterium from attack by antibiotics or an immune response.
 
-Since D-alanine passes through the dltBCDX complex via sequential covalent interactions, it can't be modeled through a single simulation. This tutorial is based on the preparation of dltB alone and dltBC simulations.
+Since D-alanine passes through the dltBCDX complex via sequential covalent interactions, it can`t be modeled through a single simulation. This tutorial is based on the preparation of dltB alone and dltBC simulations.
 
-We are going to prepare our system using various software packages, then initiate simulations on Savio (UC Berkeley's HPCC).
+We are going to prepare our system using various software packages, then initiate simulations on Savio (UC Berkeley`s HPCC).
 
 dltB has 415 residues (depends on species).
 dltBC has 415 (B) + 79 (C) residues.
-For both simulations, we will be using a POPC bilayer to simulate the bacterium cell wall, and Amber's FF14SB and TIP3P water model.
+For both simulations, we will be using a POPC bilayer to simulate the bacterium cell wall, and Amber`s FF14SB and TIP3P water model.
 
 Steps for setting up a simulation:
 1. Prepare protein
@@ -51,18 +51,18 @@ We want our system oriented in 3D space such that if the bilayer was a book, x a
 
 Orientations of Proteins in Membrane (OPM) is a site that publishes structures of proteins from the PDB pre-oriented into a bilayer. If you downloaded a crystral structure from PDB, you might be able to download the directly corresponding OPM file and delete the bilayer markers. In this case, we needed extra steps since our PDB did not have a 1-to-1 corresponding OPM file. 
 
-- Download dltB's OPM database file. dltC is conveniently included in this pre-oriented file. (link: https://opm.phar.umich.edu/proteins/4049)
+- Download dltB`s OPM database file. dltC is conveniently included in this pre-oriented file. (link: https://opm.phar.umich.edu/proteins/4049)
 - In PyMOL: Open → find the dlt_BC_OPM file and load into PyMOL alongside dltB_alone
 - Click all → A → zoom
 - Color dltB_alone and dlt_BC_OPM different colors for later comparison. Color the OPM file by segi or chain
 - Optional: remove dltC (chain A) from the dlt_BC_OPM object, before aligning
-- Command: 'align dltB_alone, dlt_BC_OPM'
-	Make sure you align your protein *to* the OPM file, not the other way around. Your protein's name should come first in the command.
+- Command: `align dltB_alone, dlt_BC_OPM`
+	Make sure you align your protein *to* the OPM file, not the other way around. Your protein`s name should come first in the command.
 - Delete dlt_BC_OPM
 - File → Export Molecule → Check Retain PDB IDs → Selected: dltB_alone, __not__ all → Save as a .pdb file
 
 ## Access Maestro virtually
-Maestro requires a license. UC Berkeley's Chem Library can provide access through the Molecular Graphics Computation Facility (MGCF). You will have to access a virtual environment to run Maestro. Alternatively, you can visit the MGCF in person in Tan Hall and use Maestro directly on an MGCF monitor.
+Maestro requires a license. UC Berkeley`s Chem Library can provide access through the Molecular Graphics Computation Facility (MGCF). You will have to access a virtual environment to run Maestro. Alternatively, you can visit the MGCF in person in Tan Hall and use Maestro directly on an MGCF monitor.
 
 - Assuming an account with the Chem Library MGCF is already set up, ensure the following basic items are complete:
 	- MobaXTerm installed
@@ -85,7 +85,7 @@ Maestro requires a license. UC Berkeley's Chem Library can provide access throug
 - NOTE: If Maestro is not opening, there may be an issue with the computing cluster. Maestro usually only takes 60s max to open.
 	- Open terminal, type "maestro", it should note that a process has been added.
  	- Work on something else for 10 minutes.
-	- If it still hasn't opened, check if you have any processes running across various workstations that may be impeding opening.
+	- If it still hasn`t opened, check if you have any processes running across various workstations that may be impeding opening.
 	- Helpful commands to type into X2Go terminal (use with care): ps -x, ws_ps, kill -9 PID, ws_kill, ssh other_workstation_name, pkill -U username
 	- If still not working after several attempts to examine processes, do something else for a while and come back to it, or email Kathy/Singam, or visit the MGCF in person and talk to Singam directly. :(
 
@@ -113,18 +113,18 @@ In the dlt_BC structure, there are ligands such as PNS (phosphopantethiene group
 - View Problems: examine issues and decide if anything needs addressing
 - Protein Reports:
 	- Ignore everything except Missing Atoms. Check for improper or missing side chains. If you used Prime, there should be no missing atoms.
- 	- If something in reports appears for every residue in the entire system, it's probably fine. Steric clashes, improper torsions, and such are okay because the system will be minimized to an optimal arrangement later.
+ 	- If something in reports appears for every residue in the entire system, it`s probably fine. Steric clashes, improper torsions, and such are okay because the system will be minimized to an optimal arrangement later.
 - Ramachandran Plot: Examine any outliers. Glycine and methionine are common outliers. Nothing to worry about.
 - Review and Modify: Since we already removed the two ligands, nothing should appear here. If you forgot to delete a heteroatom, delete it now.
 - Save a pdb before optimization
 
 ## Check protonation states
-We want to examine the local environment of each of the protein's polar/charged residues.
+We want to examine the local environment of each of the protein`s polar/charged residues.
 
 From: https://computecanada.github.io/molmodsim-amber-md-lesson/11-Protonation_State/index.html
 "The protonation states of titratable amino acids (Arg, Lys, Tyr, Cys, His, Glu, Asp) depend on the local micro-environment and pH. A highly polar microenvironment will stabilize the charged form, while a less polar microenvironment will favor the neutral form."
 
-Some residues have charge states that will be influenced by whether they are in a particularly positively or negatively charged region of the protein. We cannot depend on the generic charge state of these residues, because their pKa value will be affected by the region they inhabit. If a residue's pKa shifts dramatically, it may need to occupy a different protonation state from what is expected.
+Some residues have charge states that will be influenced by whether they are in a particularly positively or negatively charged region of the protein. We cannot depend on the generic charge state of these residues, because their pKa value will be affected by the region they inhabit. If a residue`s pKa shifts dramatically, it may need to occupy a different protonation state from what is expected.
 
 Example: aspartic acid (D) changing from pKa 3.71 to pKa 7.6.  A lysine (K) and aspartic acid (D) near each other may favor a protonated lysine and deprotonated aspartic acid.
       
@@ -139,9 +139,9 @@ Example: aspartic acid (D) changing from pKa 3.71 to pKa 7.6.  A lysine (K) and 
 **   	electrostatic interactions (mauve) >> hbonds (yellow) >> aromatic hbonds (teal)
 **
 4. Check His in detail
-	- 3 possible states: HIE (H on one of the two N's), HID (H on the opposite N), HIP (positively charged, both N's have an H)
+	- 3 possible states: HIE (H on one of the two N`s), HID (H on the opposite N), HIP (positively charged, both N`s have an H)
    	- The extra (+) charge in HIP is not favorable. Only select the HIP state if it will induce the formation of a salt bridge/electrostatic interaction.
-     	- If the pKa of His has been shifted by its surroundings to be >7-8, then you can protonate it. This usually occurs if there's an acidic residue (such as Asp/D or Glu/E) next to it encouraging a salt bridge.
+     	- If the pKa of His has been shifted by its surroundings to be >7-8, then you can protonate it. This usually occurs if there`s an acidic residue (such as Asp/D or Glu/E) next to it encouraging a salt bridge.
 6. For Lys, Asp, Glu, His: If there are two unique bonding patterns possible, both equally favorable, you may need to set up two different simulation sets and analyze both datasets.
 7. common residues that pop up
 	- Gln (Glutamine, Q, polar uncharged)
@@ -164,7 +164,7 @@ Example: aspartic acid (D) changing from pKa 3.71 to pKa 7.6.  A lysine (K) and 
 - Label this structure with "preprocessed_noCaps" in the sidebar and export PDB from Maestro. Use MobaXTerm to download from remote filesystem to local computer, then scp using the dtn and add it to Savio filesystem.
   
 - (Round Two) Add internal water molecules to stabilize the charged residues in the protein
-	- Dowser is built into the Savio bash, so just call 'dowser filename.pdb'
+	- Dowser is built into the Savio bash, so just call `dowser filename.pdb`
  	- Confirm that dowser completes correctly, does not crash
   	- scp dowserwat.pdb onto local filesystem, then upload to remote using MobaXTerm
   	- Import Structure into Maestro --> select dowserwat.pdb to import
@@ -190,11 +190,11 @@ The goal is to neutralize the protein backbone by adjusting the C and N-termini 
 # 2: Add environment/solvate
 ## Adjust PDB for compatibility with Leap
 - Use the pdbcleanup.txt file as reference
-Issues I've run into before:
+Issues I`ve run into before:
 - Incorrect spacings between columns due to having made edits
-- Change NME's CA to a CH3
+- Change NME`s CA to a CH3
 - Change HOH to WAT
-If you need to check for errors, no need to re-run packmol-memgen, just send tleap the original edited pdb file, confirm it's correct, then go back and re-start from packmol
+If you need to check for errors, no need to re-run packmol-memgen, just send tleap the original edited pdb file, confirm it`s correct, then go back and re-start from packmol
 
 ## Generate bilayer + water box
 Depending on the system you are preparing you may need to perform some or all of the following steps:
@@ -209,8 +209,8 @@ Call run packmol-memgen - - help for a detailed list of parameters
 Can also look up an Amber manual and navigate to the packmol-memgen section. Amber21 manual (link: https://ambermd.org/doc12/Amber21.pdf) --> section 13.6, page 220
 
 Here is the packmol command we will use:
-'''source activate AmberTools 21
-packmol-memgen --pdb dlt_BC_oriented_prepped_dowsed_capped_opt_min.pdb --lipids POPC --ratio 1 --preoriented --notprotonate --nottrim --salt --salt_c Na+ --saltcon 0.15 --dist 15 --dist_wat 17.5 --ffwat tip3p --ffprot ff14SB --fflip lipid17 --nloop 50'''
+```source activate AmberTools 21
+packmol-memgen --pdb dlt_BC_oriented_prepped_dowsed_capped_opt_min.pdb --lipids POPC --ratio 1 --preoriented --notprotonate --nottrim --salt --salt_c Na+ --saltcon 0.15 --dist 15 --dist_wat 17.5 --ffwat tip3p --ffprot ff14SB --fflip lipid17 --nloop 50```
 - lipid bilayer: of POPC with a ratio of 1:1
 - preoriented: into a bilayer, so that packmol does not try to rotate our structure for us
 - notprotonate, nottrim: do not change protonation states
@@ -231,7 +231,7 @@ Output of packmol-memgen: pdb file containing protein structure, internal waters
 
 The dimensions of the system are by default estimated by packmol-memgen based on the size of the protein to be packed.
 PG:PE:CL (65:27:8)
-'''packmol-memgen --pdb dltB_aligned_prepped_dowsed_minimized.pdb --lipids POPG:POPE:CL --ratio 65:27:8 --preoriented --notprotonate --nottrim --log packmol_log.txt --salt --salt_c Na+ --saltcon 0.15 --dist 12 --dist_wat 20'''
+```packmol-memgen --pdb dltB_aligned_prepped_dowsed_minimized.pdb --lipids POPG:POPE:CL --ratio 65:27:8 --preoriented --notprotonate --nottrim --log packmol_log.txt --salt --salt_c Na+ --saltcon 0.15 --dist 12 --dist_wat 20```
 
 → needs updating to a new version of AmberTools (needs Lipid 21 or higher to use CL)
 → https://ambermd.org/AmberTools.php 
@@ -256,11 +256,11 @@ Phosphatidylglycerol PG
 
 # 3: Parametrize system (prmtop, inpcrd)
 First create an input file for running tleap.
-'vim build.in'
+`vim build.in`
 switch to Insert mode: <Ctrl+I>
 
 Paste (Ctrl+V) the following:
-'''addPath /global/home/groups/fc_zebramd/software/amber18/dat/leap/cmd
+```addPath /global/home/groups/fc_zebramd/software/amber18/dat/leap/cmd
 addPath /global/home/groups/fc_zebramd/software/amber18/dat/leap/parm
 addPath /global/home/groups/fc_zebramd/software/amber18/dat/leap/lib
 addPath /global/home/groups/fc_zebramd/software/amber18/dat/leap/prep
@@ -282,7 +282,7 @@ check p
 saveamberparm p BCDX_dltB_ff14SB_TIP3P.prmtop BCDX_dltB_ff14SB_TIP3P.inpcrd
 savepdb p BCDX_dltB_ff14SB_TIP3P.pdb
 
-quit'''
+quit```
 
 Things that may need editing:
 - force fields used for protein, water, lipid
@@ -290,11 +290,11 @@ Things that may need editing:
 - saveamberparm and savepdb: edit file names
 
 Then call:
-'''source activate AmberTools21
-tleap -f build.in'''
+```source activate AmberTools21
+tleap -f build.in```
 
 should we adjust coordinates? no
-before running leap and ending up with .prmtop and .inpcrd and .pdb, remove atoms (?? what is this about??? find out) something needed removing but can't remember what
+before running leap and ending up with .prmtop and .inpcrd and .pdb, remove atoms (?? what is this about??? find out) something needed removing but can`t remember what
 check useful commands for the full command set for tleap, and that’s it until HMR + charge calcs.
 
 Box dimensions:  121.510000 121.042000 102.674000
@@ -304,7 +304,7 @@ command in tleap: charge pdb
 check box size and charge warnings, adjust charges
 commands in tleap
 check charge on system
-'run parmed -p filename.prmtop netCharge'
+`run parmed -p filename.prmtop netCharge`
 if very close to 0, it’s fine
 
 if we need to remove an atom from the system
