@@ -210,7 +210,7 @@ Call run packmol-memgen - - help for a detailed list of parameters
 Can also look up an Amber manual and navigate to the packmol-memgen section. Amber21 manual (link: https://ambermd.org/doc12/Amber21.pdf) --> section 13.6, page 220.  
 
   
-Here is the packmol command we will use:
+Here is the packmol command we will use:  
 `source activate AmberTools 21`  
 ```packmol-memgen --pdb dlt_BC_oriented_prepped_dowsed_capped_opt_min.pdb --lipids POPC --ratio 1 --preoriented --notprotonate --nottrim --salt --salt_c Na+ --saltcon 0.15 --dist 15 --dist_wat 17.5 --ffwat tip3p --ffprot ff14SB --fflip lipid17 --nloop 50```
 
