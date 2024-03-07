@@ -56,10 +56,10 @@ Orientations of Proteins in Membrane (OPM) is a site that publishes structures o
 - Click all → A → zoom
 - Color dltB_alone and dlt_BC_OPM different colors for later comparison. Color the OPM file by segi or chain
 - Optional: remove dltC (chain A) from the dlt_BC_OPM object, before aligning
-- Command: <align dltB_alone, dlt_BC_OPM>
+- Command: 'align dltB_alone, dlt_BC_OPM'
 	Make sure you align your protein *to* the OPM file, not the other way around. Your protein's name should come first in the command.
 - Delete dlt_BC_OPM
-- File → Export Molecule → Check Retain PDB IDs → Selected: <dltB_alone>, __not__ all → Save as a .pdb file
+- File → Export Molecule → Check Retain PDB IDs → Selected: dltB_alone, __not__ all → Save as a .pdb file
 
 ## Access Maestro virtually
 Maestro requires a license. UC Berkeley's Chem Library can provide access through the Molecular Graphics Computation Facility (MGCF). You will have to access a virtual environment to run Maestro. Alternatively, you can visit the MGCF in person in Tan Hall and use Maestro directly on an MGCF monitor.
@@ -164,7 +164,7 @@ Example: aspartic acid (D) changing from pKa 3.71 to pKa 7.6.  A lysine (K) and 
 - Label this structure with "preprocessed_noCaps" in the sidebar and export PDB from Maestro. Use MobaXTerm to download from remote filesystem to local computer, then scp using the dtn and add it to Savio filesystem.
   
 - (Round Two) Add internal water molecules to stabilize the charged residues in the protein
-	- Dowser is built into the Savio bash, so just call < dowser filename.pdb >
+	- Dowser is built into the Savio bash, so just call 'dowser filename.pdb'
  	- Confirm that dowser completes correctly, does not crash
   	- scp dowserwat.pdb onto local filesystem, then upload to remote using MobaXTerm
   	- Import Structure into Maestro --> select dowserwat.pdb to import
@@ -189,34 +189,12 @@ The goal is to neutralize the protein backbone by adjusting the C and N-termini 
 
 # 2: Add environment/solvate
 ## Adjust PDB for compatibility with Leap
-732 residues had naming warnings.
-Thus, there are split residues;
-residue sequence numbers will not correspond to those in the pdb.
-
-Created a new atom named: OW within residue: .R<WAT 437>
-  Added missing heavy atom: .R<WAT 437>.A<O 1>
-  total atoms in file: 128746
-  Leap added 21 missing atoms according to residue templates:
-       20 Heavy
-       1 H / lone pairs
-  The file contained 22 atoms not in residue templates
-
-
-FATAL:  Atom .R<WAT 436>.A<OW 4> does not have a type.
-FATAL:  Atom .R<WAT 437>.A<OW 4> does not have a type.
-
-Replaced HB2 (18) in Met (2) with H2? → there is also just an H2 there at pos 15
-782 HG is not understood CYX (46)
-There is a bond of 4.542 angstroms between CB and HB3 atoms:
--------  .R<NMET 4>.A<CB 7> and .R<NMET 4>.A<HB3 9>
-FATAL:  Atom .R<ET 3>.A<H 1> does not have a type.
-FATAL:  Atom .R<NME 419>.A<CA 7> does not have a type.
-FATAL:  Atom .R<NME 500>.A<CA 7> does not have a type.
-
-everything fixed!!!
-PDB File Compatibility Conversion: convert the prepared PDB file to a PDB file compatible with Leap, which is the Amber tool for simulation setup
-Combine the lipid membrane PDB file + the protein/water PDB file for processing by leap
-
+- Use the pdbcleanup.txt file as reference
+Issues I've run into before:
+- Incorrect spacings between columns due to having made edits
+- Change NME's CA to a CH3
+- Change HOH to WAT
+If you need to check for errors, no need to re-run packmol-memgen, just send tleap the original edited pdb file, confirm it's correct, then go back and re-start from packmol
 
 ## Generate bilayer + water box
 Depending on the system you are preparing you may need to perform some or all of the following steps:
@@ -231,8 +209,8 @@ Call run packmol-memgen - - help for a detailed list of parameters
 Can also look up an Amber manual and navigate to the packmol-memgen section. Amber21 manual (link: https://ambermd.org/doc12/Amber21.pdf) --> section 13.6, page 220
 
 Here is the packmol command we will use:
-<source activate AmberTools 21
-packmol-memgen --pdb dlt_BC_oriented_prepped_dowsed_capped_opt_min.pdb --lipids POPC --ratio 1 --preoriented --notprotonate --nottrim --salt --salt_c Na+ --saltcon 0.15 --dist 15 --dist_wat 17.5 --ffwat tip3p --ffprot ff14SB --fflip lipid17 --nloop 50>
+'''source activate AmberTools 21
+packmol-memgen --pdb dlt_BC_oriented_prepped_dowsed_capped_opt_min.pdb --lipids POPC --ratio 1 --preoriented --notprotonate --nottrim --salt --salt_c Na+ --saltcon 0.15 --dist 15 --dist_wat 17.5 --ffwat tip3p --ffprot ff14SB --fflip lipid17 --nloop 50'''
 - lipid bilayer: of POPC with a ratio of 1:1
 - preoriented: into a bilayer, so that packmol does not try to rotate our structure for us
 - notprotonate, nottrim: do not change protonation states
@@ -253,7 +231,7 @@ Output of packmol-memgen: pdb file containing protein structure, internal waters
 
 The dimensions of the system are by default estimated by packmol-memgen based on the size of the protein to be packed.
 PG:PE:CL (65:27:8)
-<packmol-memgen --pdb dltB_aligned_prepped_dowsed_minimized.pdb --lipids POPG:POPE:CL --ratio 65:27:8 --preoriented --notprotonate --nottrim --log packmol_log.txt --salt --salt_c Na+ --saltcon 0.15 --dist 12 --dist_wat 20 >
+'''packmol-memgen --pdb dltB_aligned_prepped_dowsed_minimized.pdb --lipids POPG:POPE:CL --ratio 65:27:8 --preoriented --notprotonate --nottrim --log packmol_log.txt --salt --salt_c Na+ --saltcon 0.15 --dist 12 --dist_wat 20'''
 
 → needs updating to a new version of AmberTools (needs Lipid 21 or higher to use CL)
 → https://ambermd.org/AmberTools.php 
@@ -278,11 +256,11 @@ Phosphatidylglycerol PG
 
 # 3: Parametrize system (prmtop, inpcrd)
 First create an input file for running tleap.
-<vim build.in>
+'vim build.in'
 switch to Insert mode: <Ctrl+I>
 
 Paste (Ctrl+V) the following:
-<addPath /global/home/groups/fc_zebramd/software/amber18/dat/leap/cmd
+'''addPath /global/home/groups/fc_zebramd/software/amber18/dat/leap/cmd
 addPath /global/home/groups/fc_zebramd/software/amber18/dat/leap/parm
 addPath /global/home/groups/fc_zebramd/software/amber18/dat/leap/lib
 addPath /global/home/groups/fc_zebramd/software/amber18/dat/leap/prep
@@ -304,7 +282,7 @@ check p
 saveamberparm p BCDX_dltB_ff14SB_TIP3P.prmtop BCDX_dltB_ff14SB_TIP3P.inpcrd
 savepdb p BCDX_dltB_ff14SB_TIP3P.pdb
 
-quit>
+quit'''
 
 Things that may need editing:
 - force fields used for protein, water, lipid
@@ -312,8 +290,8 @@ Things that may need editing:
 - saveamberparm and savepdb: edit file names
 
 Then call:
-<source activate AmberTools21
-tleap -f build.in>
+'''source activate AmberTools21
+tleap -f build.in'''
 
 should we adjust coordinates? no
 before running leap and ending up with .prmtop and .inpcrd and .pdb, remove atoms (?? what is this about??? find out) something needed removing but can't remember what
@@ -326,7 +304,7 @@ command in tleap: charge pdb
 check box size and charge warnings, adjust charges
 commands in tleap
 check charge on system
-run parmed -p <filename> netCharge
+'run parmed -p filename.prmtop netCharge'
 if very close to 0, it’s fine
 
 if we need to remove an atom from the system
