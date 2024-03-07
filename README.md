@@ -9,7 +9,7 @@ We are going to prepare our system using various software packages, then initiat
 
 dltB has 415 residues (depends on species).
 dltBC has 415 (B) + 79 (C) residues.
-For both simulations, we will be using a POPC bilayer to simulate the bacterium cell wall.
+For both simulations, we will be using a POPC bilayer to simulate the bacterium cell wall, and Amber's FF14SB and TIP3P water model.
 
 Steps for setting up a simulation:
 1. Prepare protein
@@ -187,7 +187,33 @@ The goal is to neutralize the protein backbone by adjusting the C and N-termini 
 - C terminus (last residue): the carboxyl gets an amide (N-methyl, NME) tacked on.
 - For more on termini: https://www.cup.uni-muenchen.de/ch/compchem/tink/tink2.html 
 
-# 2: Add environment / solvate
+# 2: Add environment/solvate
+## Adjust PDB for compatibility with Leap
+732 residues had naming warnings.
+Thus, there are split residues;
+residue sequence numbers will not correspond to those in the pdb.
+
+Created a new atom named: OW within residue: .R<WAT 437>
+  Added missing heavy atom: .R<WAT 437>.A<O 1>
+  total atoms in file: 128746
+  Leap added 21 missing atoms according to residue templates:
+       20 Heavy
+       1 H / lone pairs
+  The file contained 22 atoms not in residue templates
+
+
+FATAL:  Atom .R<WAT 436>.A<OW 4> does not have a type.
+FATAL:  Atom .R<WAT 437>.A<OW 4> does not have a type.
+
+Replaced HB2 (18) in Met (2) with H2? → there is also just an H2 there at pos 15
+782 HG is not understood CYX (46)
+
+everything fixed!!!
+PDB File Compatibility Conversion: convert the prepared PDB file to a PDB file compatible with Leap, which is the Amber tool for simulation setup
+Combine the lipid membrane PDB file + the protein/water PDB file for processing by leap
+
+
+## Generate bilayer + water box
 Depending on the system you are preparing you may need to perform some or all of the following steps:
 - Add internal waters
 - Add ions
@@ -200,8 +226,8 @@ Call run packmol-memgen - - help for a detailed list of parameters
 Can also look up an Amber manual and navigate to the packmol-memgen section. Amber21 manual (link: https://ambermd.org/doc12/Amber21.pdf) --> section 13.6, page 220
 
 Here is the packmol command we will use:
-< source activate AmberTools 21
-packmol-memgen --pdb dlt_BC_oriented_prepped_dowsed_capped_opt_min.pdb --lipids POPC --ratio 1 --preoriented --notprotonate --nottrim --salt --salt_c Na+ --saltcon 0.15 --dist 15 --dist_wat 17.5 --ffwat tip3p --ffprot ff14SB --fflip lipid17 --nloop 50 >
+<source activate AmberTools 21
+packmol-memgen --pdb dlt_BC_oriented_prepped_dowsed_capped_opt_min.pdb --lipids POPC --ratio 1 --preoriented --notprotonate --nottrim --salt --salt_c Na+ --saltcon 0.15 --dist 15 --dist_wat 17.5 --ffwat tip3p --ffprot ff14SB --fflip lipid17 --nloop 50>
 - lipid bilayer: of POPC with a ratio of 1:1
 - preoriented: into a bilayer, so that packmol does not try to rotate our structure for us
 - notprotonate, nottrim: do not change protonation states
@@ -222,7 +248,7 @@ Output of packmol-memgen: pdb file containing protein structure, internal waters
 
 The dimensions of the system are by default estimated by packmol-memgen based on the size of the protein to be packed.
 PG:PE:CL (65:27:8)
-packmol-memgen --pdb dltB_aligned_prepped_dowsed_minimized.pdb --lipids POPG:POPE:CL --ratio 65:27:8 --preoriented --notprotonate --nottrim --log packmol_log.txt --salt --salt_c Na+ --saltcon 0.15 --dist 12 --dist_wat 20
+<packmol-memgen --pdb dltB_aligned_prepped_dowsed_minimized.pdb --lipids POPG:POPE:CL --ratio 65:27:8 --preoriented --notprotonate --nottrim --log packmol_log.txt --salt --salt_c Na+ --saltcon 0.15 --dist 12 --dist_wat 20 >
 
 → needs updating to a new version of AmberTools (needs Lipid 21 or higher to use CL)
 → https://ambermd.org/AmberTools.php 
@@ -245,23 +271,13 @@ Phosphatidylcholine PC
 Phosphatidylethanolamine PE
 Phosphatidylglycerol PG
 
-# 3: Parametrize system
-after running the packmol command, prepare to run tleao
+# 3: Parametrize system (prmtop, inpcrd)
+First create an input file for running tleap.
+<vim build.in>
+switch to Insert mode: <Ctrl+I>
 
-This will generate a .pdb file and leap.in file, which can be edited by the user if required.
-should we adjust coordinates? no
-adjust pdb file for compatibility with leap
-do we need a build.in → yes, naomi already has it (useful commands)
-
-
-but first, let’s fix tleap’s issue.
-before running leap and ending up with .prmtop and .inpcrd and .pdb, remove atoms (?? what is this about??? find out) something needed removing but can't remember what
-
-check useful commands for the full command set for tleap, and that’s it until HMR + charge calcs.
-
-build.in
-
-addPath /global/home/groups/fc_zebramd/software/amber18/dat/leap/cmd
+Paste (Ctrl+V) the following:
+<addPath /global/home/groups/fc_zebramd/software/amber18/dat/leap/cmd
 addPath /global/home/groups/fc_zebramd/software/amber18/dat/leap/parm
 addPath /global/home/groups/fc_zebramd/software/amber18/dat/leap/lib
 addPath /global/home/groups/fc_zebramd/software/amber18/dat/leap/prep
@@ -273,7 +289,7 @@ source /global/home/groups/fc_zebramd/software/amber18/dat/leap/cmd/leaprc.lipid
 
 loadamberparams /global/home/groups/fc_zebramd/software/amber18/dat/leap/parm/frcmod.ionsjc_tip3p
 
-(commented out) load mol2 file
+#load mol2 file
 p = loadPDB bilayer_dltB_aligned_prepped_dowsed_minimized.pdb
 
 setbox p centers 0.0
@@ -283,35 +299,24 @@ check p
 saveamberparm p BCDX_dltB_ff14SB_TIP3P.prmtop BCDX_dltB_ff14SB_TIP3P.inpcrd
 savepdb p BCDX_dltB_ff14SB_TIP3P.pdb
 
-quit
+quit>
 
-tleap -f build.in
+Things that may need editing:
+- force fields used for protein, water, lipid
+- loadPBD: name of PDB file (should be your output PDB from packmol-memgen)
+- saveamberparm and savepdb: edit file names
 
-732 residues had naming warnings.
-Thus, there are split residues;
-residue sequence numbers will not correspond to those in the pdb.
+Then call:
+<source activate AmberTools21
+tleap -f build.in>
 
-Created a new atom named: OW within residue: .R<WAT 437>
-  Added missing heavy atom: .R<WAT 437>.A<O 1>
-  total atoms in file: 128746
-  Leap added 21 missing atoms according to residue templates:
-       20 Heavy
-       1 H / lone pairs
-  The file contained 22 atoms not in residue templates
+should we adjust coordinates? no
+before running leap and ending up with .prmtop and .inpcrd and .pdb, remove atoms (?? what is this about??? find out) something needed removing but can't remember what
+check useful commands for the full command set for tleap, and that’s it until HMR + charge calcs.
 
-
-FATAL:  Atom .R<WAT 436>.A<OW 4> does not have a type.
-FATAL:  Atom .R<WAT 437>.A<OW 4> does not have a type.
-
-Replaced HB2 (18) in Met (2) with H2? → there is also just an H2 there at pos 15
-782 HG is not understood CYX (46)
-
-everything fixed!!!
 Box dimensions:  121.510000 121.042000 102.674000
 
-
 next, we need to use leap to add parameters to our system and acquire sim files
-what does HMR do again?
 command in tleap: charge pdb
 check box size and charge warnings, adjust charges
 commands in tleap
@@ -321,22 +326,13 @@ if very close to 0, it’s fine
 
 if we need to remove an atom from the system
 
-
 double check with parmed that we got down to zero
-do HMR
-
-
-Leap processing
-PDB File Compatibility Conversion: convert the prepared PDB file to a PDB file compatible with Leap, which is the Amber tool for simulation setup
-Combine the lipid membrane PDB file + the protein/water PDB file for processing by leap
+do HMR!!
 That should result in .prmtop and a .inpcrd file for simulation
-Force field
-amber’s ff14sb, tip3p
+
 determine overall charge on system
 no D-ala contribution
-the protein overall should have its own net charge
-in Maestro, make sure you cap the protein termini (option in the Protein Prep Wizard) to neutralize them
-in the final step using Leap, we add ions such that we neutralize the box
+the protein overall should have its own net charge, we add ions such that we neutralize the box
 usually Naomi does a quick back of the envelope calculation to determine how many Na and Cl to add
 adds enough Nas and Cls to reach 150 mM of each, but the exact quantity will probably be different
 
@@ -344,8 +340,15 @@ Last minute checks:
 - salt balanced
 - checkValidity
 
----
-# 3.2: Generate other input files
+# 4: Kick off sims
+  for savio setups:
+folder structure:
+sims → dltBCDX
+	→ dltB_POPC_14sb_tip3p → v1 → 
+		→ input file title: BCDX_dltB_ff14SB_TIP3P.pdb/.prmtop/.inpcrd
+		→ job run title: dltB_POPC_14sb_TIP3P_v1_r1
+	→ dltB_PGPECL_14sb_tip3p → v1 → all prep, run files here
+ 
 ## Minimize, Heat, Equilibrate, Production
 lastly, we start our simulation
 Bilayer depression/buckling
@@ -358,18 +361,11 @@ sam do thinking on backing thing sup to wasabi and do a tutorial on how partitio
 tleap will give a warning if net charge is not zero
 change cut to 10.0
 what is the ref file set to (Min_3 vs prev.rst)
+the remainder of the run amber files checks if Min, Heat, and Eq steps have all completed. If something is incomplete, the script prompts running of that file using the correct inpcrd/prmtop files
+
+then it starts Prod_1. once Prod_1 is done, it calls a regex expression to figure out what the final outputted Prod step is. It continues the simulation from there while outputting .out, .nc., and .rst files for that Prod run.
 
 ## Run Bash
-  
-# 4: Kick off simms
-for savio setups:
-folder structure:
-sims → dltBCDX
-	→ dltB_POPC_14sb_tip3p → v1 → 
-		→ input file title: BCDX_dltB_ff14SB_TIP3P.pdb/.prmtop/.inpcrd
-		→ job run title: dltB_POPC_14sb_TIP3P_v1_r1
-	→ dltB_PGPECL_14sb_tip3p → v1 → all prep, run files here
-
 for run_amber.sh:
 general params
 job title specified, email address specified
@@ -393,10 +389,6 @@ this is 2 CPU cores used per sim run
 GPU params, these are in use
 1 node, 1 task, 2 CPUs per task = 2 CPU cores per sim run
 gres = gpu:1, or gres=gpu:GTX2080TI:1
-
-the remainder of the run amber files checks if Min, Heat, and Eq steps have all completed. If something is incomplete, the script prompts running of that file using the correct inpcrd/prmtop files
-
-then it starts Prod_1. once Prod_1 is done, it calls a regex expression to figure out what the final outputted Prod step is. It continues the simulation from there while outputting .out, .nc., and .rst files for that Prod run.
 
 to figure out the available account, QoS, and partition to use:
 sacctmgr -p show associations user=$USER
