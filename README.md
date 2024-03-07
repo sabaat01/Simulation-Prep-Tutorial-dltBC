@@ -3,7 +3,7 @@ walkthrough of preparing a new system for simulating, using dltBC as an example
 ## Intro and Goals
 dltBCDX is a multi-protein complex embedded in the cell wall of gram-positive bacteria and is involved in decorating the outer surface of the cell wall with D-alanine residues. These D-alanines attach to LTAs (lipotechoic acid) on the extracellular surface and provide the bacterium with a positive charge, which protects the bacterium from attack by antibiotics or an immune response.
 
-Since D-alanine passes through the dltBCDX complex via sequential covalent interactions, it can`t be modeled through a single simulation. This tutorial is based on the preparation of dltB alone and dltBC simulations.
+Since D-alanine passes through the dltBCDX complex via sequential covalent interactions, it can't be modeled through a single simulation. This tutorial is based on the preparation of dltB alone and dltBC simulations.
 
 We are going to prepare our system using various software packages, then initiate simulations on Savio (UC Berkeley`s HPCC).
 
@@ -57,7 +57,7 @@ Orientations of Proteins in Membrane (OPM) is a site that publishes structures o
 - Color dltB_alone and dlt_BC_OPM different colors for later comparison. Color the OPM file by segi or chain
 - Optional: remove dltC (chain A) from the dlt_BC_OPM object, before aligning
 - Command: `align dltB_alone, dlt_BC_OPM`
-	Make sure you align your protein *to* the OPM file, not the other way around. Your protein`s name should come first in the command.
+	Make sure you align your protein *to* the OPM file, not the other way around. Your protein's name should come first in the command.
 - Delete dlt_BC_OPM
 - File → Export Molecule → Check Retain PDB IDs → Selected: dltB_alone, __not__ all → Save as a .pdb file
 
@@ -85,7 +85,7 @@ Maestro requires a license. UC Berkeley`s Chem Library can provide access throug
 - NOTE: If Maestro is not opening, there may be an issue with the computing cluster. Maestro usually only takes 60s max to open.
 	- Open terminal, type "maestro", it should note that a process has been added.
  	- Work on something else for 10 minutes.
-	- If it still hasn`t opened, check if you have any processes running across various workstations that may be impeding opening.
+	- If it still hasn't opened, check if you have any processes running across various workstations that may be impeding opening.
 	- Helpful commands to type into X2Go terminal (use with care): ps -x, ws_ps, kill -9 PID, ws_kill, ssh other_workstation_name, pkill -U username
 	- If still not working after several attempts to examine processes, do something else for a while and come back to it, or email Kathy/Singam, or visit the MGCF in person and talk to Singam directly. :(
 
@@ -119,7 +119,7 @@ In the dlt_BC structure, there are ligands such as PNS (phosphopantethiene group
 - Save a pdb before optimization
 
 ## Check protonation states
-We want to examine the local environment of each of the protein`s polar/charged residues.
+We want to examine the local environment of each of the protein's polar/charged residues.
 
 From: https://computecanada.github.io/molmodsim-amber-md-lesson/11-Protonation_State/index.html
 "The protonation states of titratable amino acids (Arg, Lys, Tyr, Cys, His, Glu, Asp) depend on the local micro-environment and pH. A highly polar microenvironment will stabilize the charged form, while a less polar microenvironment will favor the neutral form."
@@ -139,7 +139,7 @@ Example: aspartic acid (D) changing from pKa 3.71 to pKa 7.6.  A lysine (K) and 
 **   	electrostatic interactions (mauve) >> hbonds (yellow) >> aromatic hbonds (teal)
 **
 4. Check His in detail
-	- 3 possible states: HIE (H on one of the two N`s), HID (H on the opposite N), HIP (positively charged, both N`s have an H)
+	- 3 possible states: HIE (H on one of the two N's), HID (H on the opposite N), HIP (positively charged, both N's have an H)
    	- The extra (+) charge in HIP is not favorable. Only select the HIP state if it will induce the formation of a salt bridge/electrostatic interaction.
      	- If the pKa of His has been shifted by its surroundings to be >7-8, then you can protonate it. This usually occurs if there`s an acidic residue (such as Asp/D or Glu/E) next to it encouraging a salt bridge.
 6. For Lys, Asp, Glu, His: If there are two unique bonding patterns possible, both equally favorable, you may need to set up two different simulation sets and analyze both datasets.
