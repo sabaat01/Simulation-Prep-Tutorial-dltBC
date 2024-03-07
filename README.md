@@ -1,55 +1,65 @@
 # Simulation-Prep-Tutorial-dltBC
 walkthrough of preparing a new system for simulating, using dltBC as an example
 ## Intro and Goals
-dltBCDX is a multi-protein complex embedded in the cell wall (membranes?) of (gram-positive?) bacteria and is involved in decorating the outer surface of the cell wall with D-alanine residues. These D-alanines start on the intracellular side and pass through the complex through covalent bond modifications. On the extracellular side, they attach to LTAs (lipotechoic acid) and provide the bacteria with a positive charge, which protects the bacteria from (degradation???).
+dltBCDX is a multi-protein complex embedded in the cell wall of gram-positive bacteria and is involved in decorating the outer surface of the cell wall with D-alanine residues. These D-alanines attach to LTAs (lipotechoic acid) on the extracellular surface and provide the bacterium with a positive charge, which protects the bacterium from attack by antibiotics or an immune response.
 
-In this simulation, we are only modeling dltB, which is suspected to facilitate D-ala in jumping from dltC to dltX.
+Since D-alanine passes through the dltBCDX complex via sequential covalent interactions, it can't be modeled through a single simulation. This tutorial is based on the preparation of dltB alone and dltBC simulations.
 
-We are going to prepare dltB using various software packages, then run the sims on Savio (Berkeley's HPCC).
+We are going to prepare our system using various software packages, then initiate simulations on Savio (UC Berkeley's HPCC).
 
-dltB has 415-430 residues depending on species. We will be modeling the full protein within a POPC bilayer.
+dltB has 415 residues (depends on species).
+dltBC has 415 (B) + 79 (C) residues.
+For both simulations, we will be using a POPC bilayer to simulate the bacterium cell wall.
 
-Generic steps for setting up a simulation:
-1. Acquire appropriate PDB files
-2. Clean and prepare the protein
-3. Add environment / solvate
-4. Generate starting files
-5. Prepare Savio
-6. Kick off sims, monitor
-
+Steps for setting up a simulation:
+1. Prepare protein
+	Acquire appropriate PDB files
+	Clean and prepare the protein
+2. Add environment / solvate
+   	Add waters, ions, and bilayer/water box
+3. Generate starting files
+	Parameter + inpcrd files
+	Eq, Min, and Heat files
+	bash file script for running sim
+4. Prepare Savio
+	folder for each replicate, duplicate input files, set up symlinks, specify run params
+5. Kick off sims, monitor
+   	common debug issues (bilayer populating, pdb file naming, capping before dowsing, ..)
+   	tips for monitoring/checking statuses
+   	how to download trajectories and visualize
+   	description of the various ligands
+   	
 # 1: Prepare protein
-
 From https://erikh.gitlab.io/group-page/protsetup.html:
-
-Check (use open-office chart):
-
-Is the protein a monomer, dimer ? or n-mer?
-Are there Cys-Cys- crosslinks
-Are there missing parts of the structure (the first amino acids are often not resolved, check REMARK 465)
-Are the non-standard residues?
-At what pH was the structure obtained?
+- Is the protein a monomer, dimer? or n-mer?
+- Are there Cys-Cys- crosslinks?
+- Are there missing parts of the structure (the first amino acids are often not resolved, check REMARK 465)
+- Are there non-standard residues?
+- At what pH was the structure obtained?
 
 ## Acquire original PDB
-
-- Download the new dltB structure (by Harvard group) from google drive or download crystral structure from PDB
-- Open in PyMol
+Usually, one would download a crystal structure from PDB (link to dltB: https://www.rcsb.org/structure/6BUG). In this prep, however, we used a crystal structure that contained the full complex, then isolated the proteins we wanted to simulate.
+  
+- Open .pdb file in PyMol
 - Label by chain, color by chain
 - Select only what is needed:
-	- Command: select (chain B) and DltBCDX
+	- Command: select (chain B or chain C) and DltBCDX
 	- Hide unselected
-	- A → copy selection to object → new → rename → dltB_alone
+	- A → copy selection to object → new → rename → dltB_alone / dlt_BC
 
 ## Orient into a membrane frame
+We want our system oriented in 3D space such that if the bilayer was a book, x and y are the length and width of the book cover, and z would be the depth/thickness.
 
-We want everything oriented such that x and y are the 2D dimensions of the bilayer and z is the depth. Orientations of Proteins in Membrane (OPM) is a site that publishes structures of proteins from PDB oriented into a bilayer. If you downloaded a crystral structure from PDB, you may be able to just download the corresponding OPM file and delete the bilayer markers.
-- Download dltB's OPM database file
-	- 6BUG strxr link:
-- In PyMOL: Open → find the 6BUG file and load into PyMOL alongside dltB_alone
+Orientations of Proteins in Membrane (OPM) is a site that publishes structures of proteins from the PDB pre-oriented into a bilayer. If you downloaded a crystral structure from PDB, you might be able to download the directly corresponding OPM file and delete the bilayer markers. In this case, we needed extra steps since our PDB did not have a 1-to-1 corresponding OPM file. 
+
+- Download dltB's OPM database file. dltC is conveniently included in this pre-oriented file. (link: https://opm.phar.umich.edu/proteins/4049)
+- In PyMOL: Open → find the dlt_BC_OPM file and load into PyMOL alongside dltB_alone
 - Click all → A → zoom
-- Color dltB_alone and 6BUG different colors for later comparison. Color the OPM file by segi or chain
-- Optional: remove dltC (chain A) from the 6bug_from_OPM object, prior to aligning
-- Command: <align dltB_alone, 6bug_from_OPM>
-- Delete 6bug_from_OPM
+- Color dltB_alone and dlt_BC_OPM different colors for later comparison. Color the OPM file by segi or chain
+- Optional: remove dltC (chain A) from the dlt_BC_OPM object, before aligning
+- Command: <align dltB_alone, dlt_BC_OPM>
+	Make sure you align your protein *to* the OPM file, not the other way around. Your protein's name should come first in the command.
+- Delete dlt_BC_OPM
 - File → Export Molecule → Check Retain PDB IDs → Selected: <dltB_alone>, __not__ all → Save as a .pdb file
 
 ## Access Maestro virtually
@@ -64,26 +74,28 @@ Maestro requires a license. UC Berkeley's Chem Library can provide access throug
 	- New User Instructions: https://docs.google.com/document/d/10lAWGWpGKvwPK3eGNj6TzcoMzOCtDQZC3dr--E7SeYM/edit
   	- MGCF FAQs: https://mgcf.cchem.berkeley.edu/mgcf/faqs/
 	- Tips on Using Maestro via X2Go: https://docs.google.com/document/d/1kWwOh6VPb9CJRTmhdaGPFgHM5Wg4Ql7vdILsjIiNjPM/view
-- Start a new X2Go session. To use X2Go with a monitor, you must specify resolution in settings as either maximum possible or according to dimensions of Display 2 and select the monitor as Display 2. Dimensions of Display 2 are 1920 x 1080.
+- Start a new X2Go session. To use X2Go with a monitor, you must specify resolution in settings as either maximum possible or according to dimensions of Display 2 and select your monitor as Display 2. Dimensions of Display 2 are 1920 x 1080.
 ---
-- Use Cyberduck to transfer the dltB aligned pdb to MGCF remote directory/account
-	- SFTP protocol, Port 22, (insert MGCF workstation name such as "nano").cchem.berkeley.edu, username, password
-	- Select the folder you want in the remote filesystem, then click upload in the upper right corner. Navigate through your local filesystem and select the file(s) you want to add to the remote.
+- MobaXTerm can be used to transfer files between your local computer and the remote filesystem.
+	- SSH protocol, Port 22, specify username (type your username here), and specify an MGCF workstation name such as nano.cchem.berkeley.edu.
+   	- The remote filesystem is navigable via the left sidebar
+  	- To download from remote to local: select the file you want from the remote filesystem, then click download at the top of the sidebar.
+  	- To upload from local to remote: click upload at the top of the sidebar, then navigate through your local filesystem in the popup and select the file(s) you want to add.
 ---
 - Open Maestro in X2Go and create and title a new project.
-- NOTE: If Maestro is not opening, there may be an issue with the computing cluster.
+- NOTE: If Maestro is not opening, there may be an issue with the computing cluster. Maestro usually only takes 60s max to open.
 	- Open terminal, type "maestro", it should note that a process has been added.
  	- Work on something else for 10 minutes.
 	- If it still hasn't opened, check if you have any processes running across various workstations that may be impeding opening.
 	- Helpful commands to type into X2Go terminal (use with care): ps -x, ws_ps, kill -9 PID, ws_kill, ssh other_workstation_name, pkill -U username
-	- If still not working after several attempts to examine processes, do something else for a while and come back to it. :(
+	- If still not working after several attempts to examine processes, do something else for a while and come back to it, or email Kathy/Singam, or visit the MGCF in person and talk to Singam directly. :(
 
-## Preliminary cleanup: change representation, remove unwanted ligands, add hydrogens
+## Preprocess
 - Import structure: dltB_aligned.pdb
-- Style --> Color Atoms by Chain Name
-- Style --> +Ribbons --> Color by Chain Name
+- Style --> Color Atoms by Chain Name or by Element
+- [Optional] Style --> +Ribbons --> Color by Chain Name
 ---
-In the dlt_BC structure, there are ligands such as PNS (phosphopantethiene group) and LMT (detergent). We want to remove these for now.
+In the dlt_BC structure, there are ligands such as PNS (phosphopantethiene group, link: https://www.rcsb.org/ligand/PNS) and LMT (detergent, link: https://www.rcsb.org/ligand/LMT). We want to remove these for now.
 - On the left-hand window named "Structure Hierarchy", expand the "Ligands" category.
 - Right click on the ligands you wish to remove and click "delete atoms"
 ---
@@ -96,77 +108,87 @@ In the dlt_BC structure, there are ligands such as PNS (phosphopantethiene group
 - Import and Process Window --> Deselect everything, EXCEPT:
 	- Add hydrogens
  	- Fill in missing side chains using Prime
- 	- Cap termini
-
-fix later:
-Cap termini
-Goal is to neutralize the protein backbone but making an adjustment to the C and N-terminals. These are the ACE and NME caps, which add a methyl group to the end of the protein chain. You can google ACE and NME online to see the exact conformation adopted.
-do we add waters in Maestro or Savio? Or both?
-
  	- You can also select "Create disulfide bonds". However, there is only 1 cysteine total among dltB and dltC, so I did not bother selecting this for either the dlt_B or the dlt_BC prep.
-  - Click Preprocess. A window may pop up confirming that you want to fill in missing side chains using Prime. Click Continue.
+  	- Do NOT cap termini yet! Dowser cannot parse.
+  	- Click Preprocess. A window may pop up confirming that you want to fill in missing side chains using Prime. Click Continue.
 - View Problems: examine issues and decide if anything needs addressing
 - Protein Reports:
 	- Ignore everything except Missing Atoms. Check for improper or missing side chains. If you used Prime, there should be no missing atoms.
- 	- If something in reports appears for every residue in the entire system it's probably fine. Steric clashes, improper torsions, and such are okay because the system will be minimized to an optimal arrangement later.
+ 	- If something in reports appears for every residue in the entire system, it's probably fine. Steric clashes, improper torsions, and such are okay because the system will be minimized to an optimal arrangement later.
 - Ramachandran Plot: Examine any outliers. Glycine and methionine are common outliers. Nothing to worry about.
 - Review and Modify: Since we already removed the two ligands, nothing should appear here. If you forgot to delete a heteroatom, delete it now.
-
-Save a pdb before optimization
+- Save a pdb before optimization
 
 ## Check protonation states
-Ref/source: https://computecanada.github.io/molmodsim-amber-md-lesson/11-Protonation_State/index.html
-"The protonation states of titratable amino acids (Arg, Lys, Tyr, Cys, His, Glu, Asp) depend on the local micro-environment and pH. A highly polar microenvironment will stabilize the charged form, while a less polar microenvironment will favor the neutral form. At physiological pH, TYR, LYS, CYS, and ARG are almost always in their standard protonation states, while GLU, ASP, and HIS can be in non-standard forms."
-"PROPKA3.0 is the empirical pKa prediction software."
+We want to examine the local environment of each of the protein's polar/charged residues.
 
+From: https://computecanada.github.io/molmodsim-amber-md-lesson/11-Protonation_State/index.html
+"The protonation states of titratable amino acids (Arg, Lys, Tyr, Cys, His, Glu, Asp) depend on the local micro-environment and pH. A highly polar microenvironment will stabilize the charged form, while a less polar microenvironment will favor the neutral form."
 
-We want to examine the local environment of the protein's residues. Some residues have charge states that will be influenced by whether they are in a particularly positively or negatively charged region of the protein. 
-We cannot depend on the generic charge state of these residues, because their pKa value will be affected by the region they inhabit. If a residue's pKa shifts dramatically, it may need to occupy a different protonation state from expected.
+Some residues have charge states that will be influenced by whether they are in a particularly positively or negatively charged region of the protein. We cannot depend on the generic charge state of these residues, because their pKa value will be affected by the region they inhabit. If a residue's pKa shifts dramatically, it may need to occupy a different protonation state from what is expected.
+
 Example: aspartic acid (D) changing from pKa 3.71 to pKa 7.6.  A lysine (K) and aspartic acid (D) near each other may favor a protonated lysine and deprotonated aspartic acid.
-Goal: use Maestro to examine which residues are in pockets that may affect their pKa, or the pKas of nearby residues
-
+      
+- How to optimize charge states:
+1. No Flip residues (Asn, Gln) can be ignored. Highly unlikely that anything needs changing.
+2. Ignore Ser, Thr, Tyr
+3. Check Lys, Asp, and Glu in detail
+	- All three will usually retain a charge (Lys protonated, Asp & Glu deprotonated)
+ 	- What is the usual pKa for the given side chain? What is the pKa listed in the Maestro display?
+  	- Has there been a dramatic shift in pKa that may influence the charge state?
+   	- Are there more favorable interactions available in a different charge state/conformation?
+**   	electrostatic interactions (mauve) >> hbonds (yellow) >> aromatic hbonds (teal)
+**
+4. Check His in detail
+	- 3 possible states: HIE (H on one of the two N's), HID (H on the opposite N), HIP (positively charged, both N's have an H)
+   	- The extra (+) charge in HIP is not favorable. Only select the HIP state if it will induce the formation of a salt bridge/electrostatic interaction.
+     	- If the pKa of His has been shifted by its surroundings to be >7-8, then you can protonate it. This usually occurs if there's an acidic residue (such as Asp/D or Glu/E) next to it encouraging a salt bridge.
+6. For Lys, Asp, Glu, His: If there are two unique bonding patterns possible, both equally favorable, you may need to set up two different simulation sets and analyze both datasets.
+7. common residues that pop up
+	- Gln (Glutamine, Q, polar uncharged)
+ 	- Asn (Asparagine, N, polar uncharged)
+  	- Tyr (Tyrosine, Y, hydrophobic)
+	- Cys (Cysteine, C, special res)
+	- Ser (Serine, S, polar uncharged)
+	- Thr (Threonine, T, polar uncharged)
+**    	- Lys (Lysine, K, positive charge)
+	- Asp (Aspartic Acid, D, negative charge)
+	- Glu (Glutamic Acid, E, negative charge)
+	- His (Histidine, H, positive charge)**
+---
 - (Round One) Refine:
 	- select Label pKas
 	- Run Interactive Optimizer (new window opens)
-   		- Select Label pKas, use PROPKA
+   		- Select Label pKas, use PROPKA 3.0
      		- click Analyze Network
-  		- click on the first species and click through possible states using the "<" ">" buttons. Repeat for every species in the list and optimize each charge state. Navigate to next species using up and down arrow keys.
-- How to optimize charge states:
-1. general notes:
-  	No Flip residues: retain original state. highly unlikely that you need to change anything
-   check if Asp and Glu, Lys, Arg, and Tyr have pKa below 7
-   Check burried charges through visualization
-   Decide on protonation state for Asp, Glu, Lys, Arg, Tyr and His
+  		- click on the first species and click through possible states using the "<" ">" buttons. Repeat for every species in the list and optimize each charge state. Navigate to the next species using the up and down arrow keys.
+- Label this structure with "preprocessed_noCaps" in the sidebar and export PDB from Maestro. Use MobaXTerm to download from remote filesystem to local computer, then scp using the dtn and add it to Savio filesystem.
+  
+- (Round Two) Add water molecules to stabilize the charged residues in the protein
+	- Dowser is built into the Savio bash, so just call < dowser filename.pdb >
+ 	- Confirm that dowser completes correctly, does not crash
+  	- scp dowserwat.pdb onto local filesystem, then upload to remote using MobaXTerm
+  	- Import Structure into Maestro --> select dowserwat.pdb to import
+  	- Shift+Select both the "preprocessed" pdb from prior and "dowserwat.pdb" --> right click --> select "Merge" from menu
+  	- Rename the merged structure "prepped_dowsed_noCaps"
+  	  
+- (Round Three) Recheck protonation
+	- Protein Prep Wizard --> Import and Process tab --> check Cap termini --> Preprocess
+ 	- Add "capped" the name of this new structure. Make sure you have the correct structure selected. Double check on problems, missing atoms, and review & modify tab.
+  	- Refine tab --> re-run the Interactive Optimizer now with capped + dowsed protein. Adust charge states as needed.
+  	- Label new structure with "opt"
+  	  
+- (Round Four) Refine --> Restrained Minimization (hydrogens only, OPLS4)
+	- Label new structure with "min"
    
-3. common residues that pop up
-	- Gln (Glutamine, Q, polar uncharged)
- 		- no flip, ignore
- 	- Asn (Asparagine, N, polar uncharged):
-  		- no flip, ignore
-  	- Lys (Lysine, K, positive charge)
- 		- can generally ignore, however, consider whether there are more favorable H-bond interactions in a new state
-   		- if there are two possible states for lysine (or was it His?), you may need to set up two different simulation sets and analyze both datasets
-  	- Tyr (Tyrosine, Y, hydrophobic)
-	- Cys (Cysteine, C, special case)
-	- Ser (Serine, S, polar uncharged)
-	- Thr (Threonine, T, polar uncharged)
-	- His (Histidine, H, positive charge)
- 		- has 3 possible states: HIE (H on one of the two N's), HID (H on the opposite N), HIP (positively charged, both N's have an H)
-   		- The extra (+) charge in HIP is not favorable. Only select the HIP state if it will induce the formation of a salt bridge. (How to define a salt bridge?)
-     		- If the pKa of His has been shifted by its surroundings to be >7-8, then you can protonate it. This usually occurs if there's an acidic residue (such as Asp/D or Glu/E) next to it encouraging a salt bridge.
-	- Asp (Aspartic Acid, D, negative charge)
-	- Glu (Glutamic Acid, E, negative charge)
-- Export PDB from Maestro
----
-- (Round Two) Run dowser
-- (Round Three) Recheck assignments using Interactive Optimizer again
-	- Perform a Restrained Minimization (hydrogens only, OPLS4)
-More notes written in blue notebook!
-Want to check glu, asp, lys, and his. His is its own beast
----
-- Export prepared PDB file
-	- To export from MGCF remote directory to local, open MobaXTerm. Select the file you want from the left sidebar (directory listing) and download to local computer.
----
+- Export prepared PDB file from Maestro to remote
+- Download PDB from remote to local, then scp to Savio
+
+- What is Cap Termini?
+The goal is to neutralize the protein backbone by adjusting the C and N-termini and spreading their charge as evenly as possible.
+- N terminus (first residue): the NH2 group gets a carboxyl (acetyl, ACE) tacked on.
+- C terminus (last residue): the carboxyl gets an amide (N-methyl, NME) tacked on.
+
 # 2: Add environment / solvate
 
 ## Add internal water molecules
