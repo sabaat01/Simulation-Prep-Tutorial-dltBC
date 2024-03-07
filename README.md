@@ -283,7 +283,8 @@ check p
 saveamberparm p BCDX_dltB_ff14SB_TIP3P.prmtop BCDX_dltB_ff14SB_TIP3P.inpcrd
 savepdb p BCDX_dltB_ff14SB_TIP3P.pdb
 
-quit```
+quit
+```
 
 Things that may need editing:
 - force fields used for protein, water, lipid
