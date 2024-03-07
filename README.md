@@ -134,7 +134,7 @@ Example: aspartic acid (D) changing from pKa 3.71 to pKa 7.6.  A lysine (K) and 
 	- All three will usually retain a charge (Lys protonated, Asp & Glu deprotonated)
  	- What is the usual pKa for the given side chain? What is the pKa listed in the Maestro display?
   	- Has there been a dramatic shift in pKa that may influence the charge state?
-   	- Are there more favorable interactions available in a different charge state/conformation?
+   	- Are there more favorable interactions available in a different charge state/conformation?  
 	__electrostatic interactions (mauve) >> hbonds (yellow) >> aromatic hbonds (teal)__
   
 4. Check His in detail
