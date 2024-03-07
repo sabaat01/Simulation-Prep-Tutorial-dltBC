@@ -24,11 +24,10 @@ Steps for setting up a simulation:
 4. Prepare Savio
 	- folder for each replicate, duplicate input files, set up symlinks, specify run params
 5. Kick off sims, monitor
-   	- common debug issues (bilayer populating, pdb file naming, capping before dowsing, ..)
    	- tips for monitoring/checking statuses
    	- how to download trajectories and visualize
-   	- description of the various ligands
-   	
+
+
 # 1: Prepare protein
 From https://erikh.gitlab.io/group-page/protsetup.html:
 - Is the protein a monomer, dimer? or n-mer?
@@ -164,7 +163,7 @@ Example: aspartic acid (D) changing from pKa 3.71 to pKa 7.6.  A lysine (K) and 
   		- click on the first species and click through possible states using the "<" ">" buttons. Repeat for every species in the list and optimize each charge state. Navigate to the next species using the up and down arrow keys.
 - Label this structure with "preprocessed_noCaps" in the sidebar and export PDB from Maestro. Use MobaXTerm to download from remote filesystem to local computer, then scp using the dtn and add it to Savio filesystem.
   
-- (Round Two) Add water molecules to stabilize the charged residues in the protein
+- (Round Two) Add internal water molecules to stabilize the charged residues in the protein
 	- Dowser is built into the Savio bash, so just call < dowser filename.pdb >
  	- Confirm that dowser completes correctly, does not crash
   	- scp dowserwat.pdb onto local filesystem, then upload to remote using MobaXTerm
@@ -186,76 +185,42 @@ Example: aspartic acid (D) changing from pKa 3.71 to pKa 7.6.  A lysine (K) and 
 The goal is to neutralize the protein backbone by adjusting the C and N-termini and spreading their charge as evenly as possible.
 - N terminus (first residue): the NH2 group gets a carboxyl (acetyl, ACE) tacked on.
 - C terminus (last residue): the carboxyl gets an amide (N-methyl, NME) tacked on.
+- For more on termini: https://www.cup.uni-muenchen.de/ch/compchem/tink/tink2.html 
 
 # 2: Add environment / solvate
+Depending on the system you are preparing you may need to perform some or all of the following steps:
+- Add internal waters
+- Add ions
+- Surround protein in a water box
+- Surround protein in a membrane/lipid bilayer
 
-## Add internal water molecules
-Add internal water molecules --> [upload our PDB file to Savio where we use the dowser command to add waters]
-Combine the water pdb file (dowserwat.pdb) with the exported PDB file and upload to Savio
-packmol-memgen
+For our system, we have already added internal waters using dowser. Now we will add ions and surround our protein in a lipid bilayer. Our environment will also include a buffer layer of waters surrounding the bilayer.
+We will perform this step using packmol-memgen. Here is the introductory paper to the software, it is very short and informative: https://pubs.acs.org/doi/epdf/10.1021/acs.jcim.9b00269.
+Call run packmol-memgen - - help for a detailed list of parameters
+Can also look up an Amber manual and navigate to the packmol-memgen section. Amber21 manual (link: https://ambermd.org/doc12/Amber21.pdf) --> section 13.6, page 220
 
-Packmol-Memgen notes
-check what lipid modeling version we are using (Lipid 21 or higher?)
-instances when lipid simulations with AMBER give undesired results + best practices
+Here is the packmol command we will use:
+< source activate AmberTools 21
+packmol-memgen --pdb dlt_BC_oriented_prepped_dowsed_capped_opt_min.pdb --lipids POPC --ratio 1 --preoriented --notprotonate --nottrim --salt --salt_c Na+ --saltcon 0.15 --dist 15 --dist_wat 17.5 --ffwat tip3p --ffprot ff14SB --fflip lipid17 --nloop 50 >
+- lipid bilayer: of POPC with a ratio of 1:1
+- preoriented: into a bilayer, so that packmol does not try to rotate our structure for us
+- notprotonate, nottrim: do not change protonation states
+- salt, salt_c, saltcon: add ions. use Na+ (not K+), and Cl- is the default acceptor. add to a concentration of 150 mM (0.150 M)
+- dist: minimum distance to the box border in x,y,z directions
+- dist_wat: distance between edge of bilayer and edge of box --> this is the width of the water buffer included around our lipid bilayer
+- ff: list force fields of the water molecules, protein, and lipids. To use combinations of lipids to more accurately resemble a Gram-positive bacterium cell well, you must have Lipid21 or higher installed.
+- nloop: packing iterations per molecule, usually 20, but I set it to 50 to see if we could get any better minimizing. This is not necessary, and may make packmol-memgen intolerably slow.
 
-what does HMR do again?
-compare using maestro for water molecule placement to using 3D-RISM
-must remove waters placed in the membrane region?
-antechamber for checking partial charges?
-sample packmol-memgen command:
-packmol-memgen --pdb ../system_pdb/m2_prep.pdb --lipids POPC:CHL1 --ratio 9:1 --preoriented --salt --salt_c Na+ --saltcon 0.15 --dist 10 --dist_wat 15 --notprotonate --nottrim
+Notes on packmol-memgen:
+- Takes a long time to run. Make sure your connection to the HPCC does not time out, or laptop shut down.
+- If you read through the run log, you will notice that it signals that minimization has not converged. This is okay. It is already extremely close.
+- Might populate lipids into the core of your transmembrane protein! Visualize in VMD (after generating a trajectory) and ensure this is not the case!
 
-run packmol-memgen - - help for parameter setting info
+Output of packmol-memgen: pdb file containing protein structure, internal waters, bilayer, ions, and water box
 
-output of packmol-memgen
-.pdb containing protein, prepared membrane, and water box
-coordinates may be slightly shifted?
-to delete extra charges and balance the system, you can just delete the first ion from the membrane pdb file
+"A recent study has found that large membrane patches buckle using the Monte Carlo barostat, whilst smaller patches show a systematic depression of the area per lipid. The buckling behaviour is corrected using a force-switch for non-bonded interactions....The area per lipid depression is also found with Lipid21. However, POPC remains near the experimental area per lipid. The Berendsen barostat is thus preferable over the Monte Carlo barostat when simulation time allows."
 
-membrane systems often have bad clashes of lipid chians that need resolving via the minimization steps
-
-how to confirm sim is stable:
-The M2 receptor has RMSD hovering around 2.5 A (using carbon-alpha atoms), whereas the iperoxo agonist is more stable, with RMSD 1 - 1.5 A. These results are acceptable and indicate a stable simulation.
-cpptraj m2_IXO.prmtop<image.trajin
-cpptraj m2_IXO.prmtop<prot_rmsd.trajin
-cpptraj m2_IXO.prmtop<lig_rmsd.trajin
-from justin’s tutorial
-
-
-A recent study has found that large membrane patches buckle using the Monte Carlo barostat, whilst smaller patches show a systematic depression of the area per lipid. The buckling behaviour is corrected using a force-switch for non-bonded interactions.
-
-The area per lipid depression is also found with Lipid21. However, POPC remains near to the experimental area per lipid. The Berendsen barostat is thus preferable over the Monte Carlo barostat when simulation time allows.
-
-- Justin’s tutorial mentions using 3D-RISM to add waters to the system. We used Maestro’s add waters function → how to find the diff?
-- antechamber → used to specially parametrize ligands, but we have no ligand (also no.lib or .frcmod files)
-- we are working with Lipid_ext of AmberTools21(expanded out from Lipid21)
-done
-- read manual for packmol-memgen
-- found ambertools2 manual
-- read packmol paper
-
-so we need to surround protein with a lipid bilayer + some water (packmol-memgen)
-decide box size + bilayer size → 
-box + bilayer size generated by packmol-memgen, and water layer can be added
-The dimensions of the system are by default estimated by packmol-memgen based on the size of the protein to be packed
-determine whether to remove waters before making the membrane box → it seems not since naomi’s instructions mention “protein/water file”, but why/why not?
-re-exported the .mae to .pdb for use with packmol
-should i specify a unique box size in packmol? or is determines independently
-
-read into gram-cell negative bacteria / staph/strep bilayer compositions
-86 POPC and 42 POPG for the bacterial model, as well as 7500 water molecules → S aureus
-major membrane lipid species of S. aureus: 
-S. aureus
-PG, CL, Lyso-PG, GPL, Lysyl-PG, Type I LTA, FA
-
-Few architectures have been developed where the inner and outer leaflets contain the most common lipid species or analogues thereof for GN (PE, PG and CL) and GP (PG, CL, and lysyl-PG) bacteria.
-These models often contain 2 or more different lipid species asymmetrically arranged in a bilayer, with the outer and inner leaflets composed primarily of LPS (restricted to the outer leaflet) and/or a mixture of PE, PG and sometimes CL.
-We first monitored the interaction of NBD-labeled peptides with liposomes composed of cardiolipin and phosphatidylglycerol (CL∶PG), anionic lipids composing membranes of streptococci [39] but lacking all cell wall components including peptidoglycan and LTAs. 
- The most abundant phospholipid found in Gram-positive bacterial membranes, including staphylococcal membranes, is phosphatidylglycerol (PG). PG can be converted to cardiolipin (CL) and lysyl-phosphatidylglycerol (L-PG)
-https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8921416/#CR272 
-informative abstract: https://www.sciencedirect.com/science/article/pii/S0005273610004104 
-
-
+The dimensions of the system are by default estimated by packmol-memgen based on the size of the protein to be packed.
 PG:PE:CL (65:27:8)
 packmol-memgen --pdb dltB_aligned_prepped_dowsed_minimized.pdb --lipids POPG:POPE:CL --ratio 65:27:8 --preoriented --notprotonate --nottrim --log packmol_log.txt --salt --salt_c Na+ --saltcon 0.15 --dist 12 --dist_wat 20
 
@@ -267,29 +232,8 @@ packmol-memgen --pdb dltB_aligned_prepped_dowsed_minimized.pdb --lipids POPG:POP
 
 → conda create new env name … instructions listed in the Getamber.php site
 
-—-
-edit PDB
-USE PACKMOL PAPER DEFAULTS FOR DIST AND DIST_WAT (15, 17.5)
-—
-POPC (1)
-packmol-memgen --pdb dltB_aligned_prepped_dowsed_minimized.pdb --lipids POPC --ratio 1 --preoriented --notprotonate --nottrim --log packmol_log.txt --salt --salt_c Na+ --saltcon 0.15 --dist 15 --dist_wat 17.5 --ffwat tip3p --ffprot ff14SB
 
-—-
-/global/home/groups/fc_zebramd/test_install/miniconda3/envs/AmberTools21/bin/packmol-memgen --pdb ../AF2_IFNLR1_TM_5L04_forLeap.pdb --lipids POPC:CHL1 --ratio 9:1 -- preoriented --salt --salt_c Na+ --saltcon 0.15 --dist 12 --dist_wat 20 --notprotonate --nottrim --ffwat tip3p --ffprot ff14SB --fflip lipid17
-
- --nottrim
---log packmol_log.txt
-packmol-memgen
---pdb name.pdb
---lipids POPC
---lipids POPE/POPG:CL???? --ratio 3:1 (what should the ratio be? what kind of bilayer did naomi suggest? what kind of bilayer do i think is ideal?)
---preoriented
---salt --salt_c Na+ --saltcon 0.15
---dist_wat 15: water layer thickness of 15 A on either end (what should i set it to?)
---notprotonate: don’t add H’s, we already did it
---nottrim: do not process input receptor PDB file (since we have already prepared this)
 --keep --parametrize (to load in the cardiolipin parameter files)
-do i need to add: tailplane, headplane, leaflet?
 —-
 
 system 1: POPC
@@ -300,9 +244,6 @@ Oleic acid | 18:1(9) O
 Phosphatidylcholine PC
 Phosphatidylethanolamine PE
 Phosphatidylglycerol PG
-
-actually, packmol says it didn’t find the perfect configuration, but that what was found is likely good enough. can re-run it, but not necessary.
-
 
 # 3: Parametrize system
 after running the packmol command, prepare to run tleao
@@ -332,7 +273,7 @@ source /global/home/groups/fc_zebramd/software/amber18/dat/leap/cmd/leaprc.lipid
 
 loadamberparams /global/home/groups/fc_zebramd/software/amber18/dat/leap/parm/frcmod.ionsjc_tip3p
 
-# load mol2 file
+(commented out) load mol2 file
 p = loadPDB bilayer_dltB_aligned_prepped_dowsed_minimized.pdb
 
 setbox p centers 0.0
@@ -404,7 +345,7 @@ Last minute checks:
 - checkValidity
 
 ---
-# 4: Generate other input files
+# 3.2: Generate other input files
 ## Minimize, Heat, Equilibrate, Production
 lastly, we start our simulation
 Bilayer depression/buckling
@@ -420,7 +361,7 @@ what is the ref file set to (Min_3 vs prev.rst)
 
 ## Run Bash
   
-# 5: Kick off simms
+# 4: Kick off simms
 for savio setups:
 folder structure:
 sims → dltBCDX
@@ -460,4 +401,58 @@ then it starts Prod_1. once Prod_1 is done, it calls a regex expression to figur
 to figure out the available account, QoS, and partition to use:
 sacctmgr -p show associations user=$USER
 
-# 6: Monitor sim progress and troubleshoot
+# 5: Monitor sim progress and troubleshoot
+
+# 6: Add images:
+   	- gram-positive bacteria cell wall with LTAs + D-alanyl
+	- PyMol OPM
+   	- Maestro charge states
+   	- ACE, NME groups, normal state
+   	  
+# 7: Process/clean out of tutorial later:
+- coordinates may be slightly shifted?
+- to delete extra charges and balance the system, you can just delete ions from the membrane pdb file
+- membrane systems often have bad clashes of lipid chians that need resolving via the minimization steps
+
+how to confirm sim is stable:
+The M2 receptor has RMSD hovering around 2.5 A (using carbon-alpha atoms), whereas the iperoxo agonist is more stable, with RMSD 1 - 1.5 A. These results are acceptable and indicate a stable simulation.
+cpptraj m2_IXO.prmtop<image.trajin
+cpptraj m2_IXO.prmtop<prot_rmsd.trajin
+cpptraj m2_IXO.prmtop<lig_rmsd.trajin
+from justin’s tutorial
+
+- common debug issues (bilayer populating, pdb file naming, capping before dowsing, ..)
+-  description of the various ligands
+- what does HMR do again?
+- compare using maestro for water molecule placement to using 3D-RISM
+- must remove waters placed in the membrane region?
+- antechamber for checking partial charges?
+
+- - Justin’s tutorial mentions using 3D-RISM to add waters to the system. We used Maestro’s add waters function → how to find the diff?
+- antechamber → used to specially parametrize ligands, but we have no ligand (also no.lib or .frcmod files)
+- we are working with Lipid_ext of AmberTools21(expanded out from Lipid21)
+done
+- read manual for packmol-memgen
+- found ambertools2 manual
+- read packmol paper
+
+so we need to surround protein with a lipid bilayer + some water (packmol-memgen)
+decide box size + bilayer size → 
+box + bilayer size generated by packmol-memgen, and water layer can be added
+
+determine whether to remove waters before making the membrane box → it seems not since naomi’s instructions mention “protein/water file”, but why/why not?
+re-exported the .mae to .pdb for use with packmol
+should i specify a unique box size in packmol? or is determines independently
+
+read into gram-cell negative bacteria / staph/strep bilayer compositions
+86 POPC and 42 POPG for the bacterial model, as well as 7500 water molecules → S aureus
+major membrane lipid species of S. aureus: 
+S. aureus
+PG, CL, Lyso-PG, GPL, Lysyl-PG, Type I LTA, FA
+
+Few architectures have been developed where the inner and outer leaflets contain the most common lipid species or analogues thereof for GN (PE, PG and CL) and GP (PG, CL, and lysyl-PG) bacteria.
+These models often contain 2 or more different lipid species asymmetrically arranged in a bilayer, with the outer and inner leaflets composed primarily of LPS (restricted to the outer leaflet) and/or a mixture of PE, PG and sometimes CL.
+We first monitored the interaction of NBD-labeled peptides with liposomes composed of cardiolipin and phosphatidylglycerol (CL∶PG), anionic lipids composing membranes of streptococci [39] but lacking all cell wall components including peptidoglycan and LTAs. 
+ The most abundant phospholipid found in Gram-positive bacterial membranes, including staphylococcal membranes, is phosphatidylglycerol (PG). PG can be converted to cardiolipin (CL) and lysyl-phosphatidylglycerol (L-PG)
+https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8921416/#CR272 
+informative abstract: https://www.sciencedirect.com/science/article/pii/S0005273610004104 
