@@ -119,14 +119,14 @@ In the dlt_BC structure, there are ligands such as PNS (phosphopantethiene group
 - Save a pdb before optimization
 
 ## Check protonation states
-We want to examine the local environment of each of the protein's polar/charged residues.
+We want to examine the local environment of each of the protein's polar/charged residues.  
 From: https://computecanada.github.io/molmodsim-amber-md-lesson/11-Protonation_State/index.html  
-"The protonation states of titratable amino acids (Arg, Lys, Tyr, Cys, His, Glu, Asp) depend on the local micro-environment and pH. A highly polar microenvironment will stabilize the charged form, while a less polar microenvironment will favor the neutral form."
-
-Some residues have charge states that will be influenced by whether they are in a particularly positively or negatively charged region of the protein. We cannot depend on the generic charge state of these residues, because their pKa value will be affected by the region they inhabit. If a residue`s pKa shifts dramatically, it may need to occupy a different protonation state from what is expected.
-
-Example: aspartic acid (D) changing from pKa 3.71 to pKa 7.6.  A lysine (K) and aspartic acid (D) near each other may favor a protonated lysine and deprotonated aspartic acid.
-      
+"The protonation states of titratable amino acids (Arg, Lys, Tyr, Cys, His, Glu, Asp) depend on the local micro-environment and pH. A highly polar microenvironment will stabilize the charged form, while a less polar microenvironment will favor the neutral form."  
+  
+Some residues have charge states that will be influenced by whether they are in a particularly positively or negatively charged region of the protein. We cannot depend on the generic charge state of these residues, because their pKa value will be affected by the region they inhabit. If a residue`s pKa shifts dramatically, it may need to occupy a different protonation state from what is expected.  
+  
+Example: aspartic acid (D) changing from pKa 3.71 to pKa 7.6.  A lysine (K) and aspartic acid (D) near each other may favor a protonated lysine and deprotonated aspartic acid.  
+  
 - How to optimize charge states:
 1. No Flip residues (Asn, Gln) can be ignored. Highly unlikely that anything needs changing.
 2. Ignore Ser, Thr, Tyr
@@ -135,24 +135,26 @@ Example: aspartic acid (D) changing from pKa 3.71 to pKa 7.6.  A lysine (K) and 
  	- What is the usual pKa for the given side chain? What is the pKa listed in the Maestro display?
   	- Has there been a dramatic shift in pKa that may influence the charge state?
    	- Are there more favorable interactions available in a different charge state/conformation?
-**   	electrostatic interactions (mauve) >> hbonds (yellow) >> aromatic hbonds (teal)
-**
+	__electrostatic interactions (mauve) >> hbonds (yellow) >> aromatic hbonds (teal)__
+  
 4. Check His in detail
 	- 3 possible states: HIE (H on one of the two N's), HID (H on the opposite N), HIP (positively charged, both N's have an H)
    	- The extra (+) charge in HIP is not favorable. Only select the HIP state if it will induce the formation of a salt bridge/electrostatic interaction.
      	- If the pKa of His has been shifted by its surroundings to be >7-8, then you can protonate it. This usually occurs if there`s an acidic residue (such as Asp/D or Glu/E) next to it encouraging a salt bridge.
-6. For Lys, Asp, Glu, His: If there are two unique bonding patterns possible, both equally favorable, you may need to set up two different simulation sets and analyze both datasets.
-7. common residues that pop up
+  
+5. For Lys, Asp, Glu, His: If there are two unique bonding patterns possible, both equally favorable, you may need to set up two different simulation sets and analyze both datasets.
+  
+6. common residues that pop up
 	- Gln (Glutamine, Q, polar uncharged)
  	- Asn (Asparagine, N, polar uncharged)
   	- Tyr (Tyrosine, Y, hydrophobic)
 	- Cys (Cysteine, C, special res)
 	- Ser (Serine, S, polar uncharged)
 	- Thr (Threonine, T, polar uncharged)
-**    	- Lys (Lysine, K, positive charge)
-	- Asp (Aspartic Acid, D, negative charge)
-	- Glu (Glutamic Acid, E, negative charge)
-	- His (Histidine, H, positive charge)**
+	- __Lys (Lysine, K, positive charge)__
+	- __Asp (Aspartic Acid, D, negative charge)__
+	- __Glu (Glutamic Acid, E, negative charge)__
+	- __His (Histidine, H, positive charge)__
 ---
 - (Round One) Refine:
 	- select Label pKas
@@ -179,13 +181,13 @@ Example: aspartic acid (D) changing from pKa 3.71 to pKa 7.6.  A lysine (K) and 
 - (Round Four) Refine --> Restrained Minimization (hydrogens only, OPLS4)
 - Label new structure with "min"
 - Export prepared structure as PDB file from Maestro to remote. Download PDB from remote to local, then scp to Savio
-
+  
 - What is Cap Termini?
 The goal is to neutralize the protein backbone by adjusting the C and N-termini and spreading their charge as evenly as possible.
 - N terminus (first residue): the NH2 group gets a carboxyl (acetyl, ACE) tacked on.
 - C terminus (last residue): the carboxyl gets an amide (N-methyl, NME) tacked on.
 - For more on termini: https://www.cup.uni-muenchen.de/ch/compchem/tink/tink2.html 
-
+  
 # 2: Add environment/solvate
 ## Adjust PDB for compatibility with Leap
 - Use the pdbcleanup.txt file as reference
@@ -194,23 +196,23 @@ Issues I`ve run into before:
 - Change NME`s CA to a CH3
 - Change HOH to WAT
 If you need to check for errors, no need to re-run packmol-memgen, just send tleap the original edited pdb file, confirm it`s correct, then go back and re-start from packmol
-
+  
 ## Generate bilayer + water box
 Depending on the system you are preparing you may need to perform some or all of the following steps:
 - Add internal waters
 - Add ions
 - Surround protein in a water box
 - Surround protein in a membrane/lipid bilayer
-
-For our system, we have already added internal waters using dowser. Now we will add ions and surround our protein in a lipid bilayer. Our environment will also include a buffer layer of waters surrounding the bilayer.
-We will perform this step using packmol-memgen. Here is the introductory paper to the software, it is very short and informative: https://pubs.acs.org/doi/epdf/10.1021/acs.jcim.9b00269.
-Call run packmol-memgen - - help for a detailed list of parameters
-Can also look up an Amber manual and navigate to the packmol-memgen section. Amber21 manual (link: https://ambermd.org/doc12/Amber21.pdf) --> section 13.6, page 220
-
+  
+For our system, we have already added internal waters using dowser. Now we will add ions and surround our protein in a lipid bilayer. Our environment will also include a buffer layer of waters surrounding the bilayer.  
+We will perform this step using packmol-memgen. Here is the introductory paper to the software, it is very short and informative: https://pubs.acs.org/doi/epdf/10.1021/acs.jcim.9b00269.  
+Call run packmol-memgen - - help for a detailed list of parameters  
+Can also look up an Amber manual and navigate to the packmol-memgen section. Amber21 manual (link: https://ambermd.org/doc12/Amber21.pdf) --> section 13.6, page 220.  
+  
 Here is the packmol command we will use:
 `source activate AmberTools 21`
 ```packmol-memgen --pdb dlt_BC_oriented_prepped_dowsed_capped_opt_min.pdb --lipids POPC --ratio 1 --preoriented --notprotonate --nottrim --salt --salt_c Na+ --saltcon 0.15 --dist 15 --dist_wat 17.5 --ffwat tip3p --ffprot ff14SB --fflip lipid17 --nloop 50```
-
+  
 - lipid bilayer: of POPC with a ratio of 1:1
 - preoriented: into a bilayer, so that packmol does not try to rotate our structure for us
 - notprotonate, nottrim: do not change protonation states
@@ -219,16 +221,16 @@ Here is the packmol command we will use:
 - dist_wat: distance between edge of bilayer and edge of box --> this is the width of the water buffer included around our lipid bilayer
 - ff: list force fields of the water molecules, protein, and lipids. To use combinations of lipids to more accurately resemble a Gram-positive bacterium cell well, you must have Lipid21 or higher installed.
 - nloop: packing iterations per molecule, usually 20, but I set it to 50 to see if we could get any better minimizing. This is not necessary, and may make packmol-memgen intolerably slow.
-
+  
 Notes on packmol-memgen:
 - Takes a long time to run. Make sure your connection to the HPCC does not time out, or laptop shut down.
 - If you read through the run log, you will notice that it signals that minimization has not converged. This is okay. It is already extremely close.
 - Might populate lipids into the core of your transmembrane protein! Visualize in VMD (after generating a trajectory) and ensure this is not the case!
-
-Output of packmol-memgen: pdb file containing protein structure, internal waters, bilayer, ions, and water box
-
+  
+Output of packmol-memgen: pdb file containing protein structure, internal waters, bilayer, ions, and water box  
+  
 "A recent study has found that large membrane patches buckle using the Monte Carlo barostat, whilst smaller patches show a systematic depression of the area per lipid. The buckling behaviour is corrected using a force-switch for non-bonded interactions....The area per lipid depression is also found with Lipid21. However, POPC remains near the experimental area per lipid. The Berendsen barostat is thus preferable over the Monte Carlo barostat when simulation time allows."
-
+  
 The dimensions of the system are by default estimated by packmol-memgen based on the size of the protein to be packed.
 PG:PE:CL (65:27:8)
 ```packmol-memgen --pdb dltB_aligned_prepped_dowsed_minimized.pdb --lipids POPG:POPE:CL --ratio 65:27:8 --preoriented --notprotonate --nottrim --log packmol_log.txt --salt --salt_c Na+ --saltcon 0.15 --dist 12 --dist_wat 20```
