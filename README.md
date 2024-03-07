@@ -293,7 +293,8 @@ Things that may need editing:
 
 Then call:
 ```source activate AmberTools21
-tleap -f build.in```
+tleap -f build.in
+```
 
 should we adjust coordinates? no
 before running leap and ending up with .prmtop and .inpcrd and .pdb, remove atoms (?? what is this about??? find out) something needed removing but can`t remember what
