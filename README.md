@@ -5,11 +5,11 @@ dltBCDX is a multi-protein complex embedded in the cell wall of gram-positive ba
 
 Since D-alanine passes through the dltBCDX complex via sequential covalent interactions, it can't be modeled through a single simulation. This tutorial is based on the preparation of dltB alone and dltBC simulations.
 
-We are going to prepare our system using various software packages, then initiate simulations on Savio (UC Berkeley`s HPCC).
+We are going to prepare our system using various software packages, then initiate simulations on Savio (UC Berkeley's HPCC).
 
 dltB has 415 residues (depends on species).
 dltBC has 415 (B) + 79 (C) residues.
-For both simulations, we will be using a POPC bilayer to simulate the bacterium cell wall, and Amber`s FF14SB and TIP3P water model.
+For both simulations, we will be using a POPC bilayer to simulate the bacterium cell wall, and Amber's FF14SB and TIP3P water model.
 
 Steps for setting up a simulation:
 1. Prepare protein
@@ -51,7 +51,7 @@ We want our system oriented in 3D space such that if the bilayer was a book, x a
 
 Orientations of Proteins in Membrane (OPM) is a site that publishes structures of proteins from the PDB pre-oriented into a bilayer. If you downloaded a crystral structure from PDB, you might be able to download the directly corresponding OPM file and delete the bilayer markers. In this case, we needed extra steps since our PDB did not have a 1-to-1 corresponding OPM file. 
 
-- Download dltB`s OPM database file. dltC is conveniently included in this pre-oriented file. (link: https://opm.phar.umich.edu/proteins/4049)
+- Download dltB's OPM database file. dltC is conveniently included in this pre-oriented file. (link: https://opm.phar.umich.edu/proteins/4049)
 - In PyMOL: Open → find the dlt_BC_OPM file and load into PyMOL alongside dltB_alone
 - Click all → A → zoom
 - Color dltB_alone and dlt_BC_OPM different colors for later comparison. Color the OPM file by segi or chain
@@ -62,7 +62,7 @@ Orientations of Proteins in Membrane (OPM) is a site that publishes structures o
 - File → Export Molecule → Check Retain PDB IDs → Selected: dltB_alone, __not__ all → Save as a .pdb file
 
 ## Access Maestro virtually
-Maestro requires a license. UC Berkeley`s Chem Library can provide access through the Molecular Graphics Computation Facility (MGCF). You will have to access a virtual environment to run Maestro. Alternatively, you can visit the MGCF in person in Tan Hall and use Maestro directly on an MGCF monitor.
+Maestro requires a license. UC Berkeley's Chem Library can provide access through the Molecular Graphics Computation Facility (MGCF). You will have to access a virtual environment to run Maestro. Alternatively, you can visit the MGCF in person in Tan Hall and use Maestro directly on an MGCF monitor.
 
 - Assuming an account with the Chem Library MGCF is already set up, ensure the following basic items are complete:
 	- MobaXTerm installed
@@ -113,7 +113,7 @@ In the dlt_BC structure, there are ligands such as PNS (phosphopantethiene group
 - View Problems: examine issues and decide if anything needs addressing
 - Protein Reports:
 	- Ignore everything except Missing Atoms. Check for improper or missing side chains. If you used Prime, there should be no missing atoms.
- 	- If something in reports appears for every residue in the entire system, it`s probably fine. Steric clashes, improper torsions, and such are okay because the system will be minimized to an optimal arrangement later.
+ 	- If something in reports appears for every residue in the entire system, it's probably fine. Steric clashes, improper torsions, and such are okay because the system will be minimized to an optimal arrangement later.
 - Ramachandran Plot: Examine any outliers. Glycine and methionine are common outliers. Nothing to worry about.
 - Review and Modify: Since we already removed the two ligands, nothing should appear here. If you forgot to delete a heteroatom, delete it now.
 - Save a pdb before optimization
@@ -123,7 +123,7 @@ We want to examine the local environment of each of the protein's polar/charged 
 From: https://computecanada.github.io/molmodsim-amber-md-lesson/11-Protonation_State/index.html  
 "The protonation states of titratable amino acids (Arg, Lys, Tyr, Cys, His, Glu, Asp) depend on the local micro-environment and pH. A highly polar microenvironment will stabilize the charged form, while a less polar microenvironment will favor the neutral form."  
   
-Some residues have charge states that will be influenced by whether they are in a particularly positively or negatively charged region of the protein. We cannot depend on the generic charge state of these residues, because their pKa value will be affected by the region they inhabit. If a residue`s pKa shifts dramatically, it may need to occupy a different protonation state from what is expected.  
+Some residues have charge states that will be influenced by whether they are in a particularly positively or negatively charged region of the protein. We cannot depend on the generic charge state of these residues, because their pKa value will be affected by the region they inhabit. If a residue's pKa shifts dramatically, it may need to occupy a different protonation state from what is expected.  
   
 Example: aspartic acid (D) changing from pKa 3.71 to pKa 7.6.  A lysine (K) and aspartic acid (D) near each other may favor a protonated lysine and deprotonated aspartic acid.  
   
@@ -140,7 +140,7 @@ Example: aspartic acid (D) changing from pKa 3.71 to pKa 7.6.  A lysine (K) and 
 4. Check His in detail
 	- 3 possible states: HIE (H on one of the two N's), HID (H on the opposite N), HIP (positively charged, both N's have an H)
    	- The extra (+) charge in HIP is not favorable. Only select the HIP state if it will induce the formation of a salt bridge/electrostatic interaction.
-     	- If the pKa of His has been shifted by its surroundings to be >7-8, then you can protonate it. This usually occurs if there`s an acidic residue (such as Asp/D or Glu/E) next to it encouraging a salt bridge.
+     	- If the pKa of His has been shifted by its surroundings to be >7-8, then you can protonate it. This usually occurs if there's an acidic residue (such as Asp/D or Glu/E) next to it encouraging a salt bridge.
   
 5. For Lys, Asp, Glu, His: If there are two unique bonding patterns possible, both equally favorable, you may need to set up two different simulation sets and analyze both datasets.
   
@@ -190,12 +190,14 @@ The goal is to neutralize the protein backbone by adjusting the C and N-termini 
   
 # 2: Add environment/solvate
 ## Adjust PDB for compatibility with Leap
-- Use the pdbcleanup.txt file as reference
+- Use the pdbcleanup.txt file as reference  
+  
 Issues I've run into before:
 - Incorrect spacings between columns due to having made edits
 - Change NME's CA to a CH3
 - Change HOH to WAT
-If you need to check for errors, no need to re-run packmol-memgen, just send tleap the original edited pdb file, confirm it`s correct, then go back and re-start from packmol
+  
+If you need to check for errors, no need to re-run packmol-memgen, just send tleap the original edited pdb file, confirm the bugs were fixed, then re-start building from packmol
   
 ## Generate bilayer + water box
 Depending on the system you are preparing you may need to perform some or all of the following steps:
@@ -205,9 +207,7 @@ Depending on the system you are preparing you may need to perform some or all of
 - Surround protein in a membrane/lipid bilayer
   
 For our system, we have already added internal waters using dowser. Now we will add ions and surround our protein in a lipid bilayer. Our environment will also include a buffer layer of waters surrounding the bilayer.  
-We will perform this step using packmol-memgen. Here is the introductory paper to the software, it is very short and informative: https://pubs.acs.org/doi/epdf/10.1021/acs.jcim.9b00269.  
-Call run packmol-memgen - - help for a detailed list of parameters  
-Can also look up an Amber manual and navigate to the packmol-memgen section. Amber21 manual (link: https://ambermd.org/doc12/Amber21.pdf) --> section 13.6, page 220.  
+We will perform this step using packmol-memgen.  
 
 We want to set up two different systems:  
 system 1: POPC  
@@ -238,7 +238,7 @@ Description:
 - ff: list force fields of the water molecules, protein, and lipids. To use combinations of lipids to more accurately resemble a Gram-positive bacterium cell well, you must have Lipid21 or higher installed.
 - nloop: packing iterations per molecule, usually 20, but I set it to 50 to see if we could get any better minimizing. This is not necessary, and may make packmol-memgen intolerably slow.
 - keep, parametrize: to load in the cardiolipin (CL) file __didn't do this for dltB or dlt_BC though?__
-
+  
 To use cardiolipin (CL) requires Lipid_ext, which is a part of the Lipid21 package, and we are using Lipid17 right now.   
 To download Lipid21:
 - update to a new version of AmberTools (needs Lipid 21 or higher to use CL): https://ambermd.org/AmberTools.php, then re-compile 
@@ -251,8 +251,12 @@ Notes on packmol-memgen:
 - Takes a long time to run. Make sure your connection to the HPCC does not time out, or laptop shut down.
 - If you read through the run log, you will notice that it signals that minimization has not converged. This is okay. It is already extremely close.
 - Might populate lipids into the core of your transmembrane protein! Visualize in VMD (after generating a trajectory) and ensure this is not the case!
-- The dimensions of the system are by default estimated by packmol-memgen based on the size of the protein to be packed. 
-
+- The dimensions of the system are by default estimated by packmol-memgen based on the size of the protein to be packed.
+- For a more detailed list of parameters, try the following:
+	- Call `packmol-memgen - - help`
+	- Here is the introductory paper to the software, it is very short and informative: https://pubs.acs.org/doi/epdf/10.1021/acs.jcim.9b00269.
+	- Look up an Amber manual and navigate to the packmol-memgen section. Amber21 manual (link: https://ambermd.org/doc12/Amber21.pdf) --> section 13.6, page 220.  
+  
 # 3: Parametrize system (prmtop, inpcrd)
 First create an input file for running tleap.
 `vim build.in`
