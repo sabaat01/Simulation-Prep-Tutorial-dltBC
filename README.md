@@ -263,7 +263,8 @@ First create an input file for running tleap.
 switch to Insert mode: <Ctrl+I>
 
 Paste (Ctrl+V) the following:
-```addPath /global/home/groups/fc_zebramd/software/amber18/dat/leap/cmd
+```
+addPath /global/home/groups/fc_zebramd/software/amber18/dat/leap/cmd
 addPath /global/home/groups/fc_zebramd/software/amber18/dat/leap/parm
 addPath /global/home/groups/fc_zebramd/software/amber18/dat/leap/lib
 addPath /global/home/groups/fc_zebramd/software/amber18/dat/leap/prep
@@ -294,95 +295,113 @@ Things that may need editing:
 - saveamberparm and savepdb: edit file names
 
 Then call:
-```source activate AmberTools21
+```
+source activate AmberTools21
 tleap -f build.in
 ```
 
-__edits restart here__
-should we adjust coordinates? no
-before running leap and ending up with .prmtop and .inpcrd and .pdb, remove atoms (?? what is this about??? find out) something needed removing but can`t remember what
-check useful commands for the full command set for tleap, and that’s it until HMR + charge calcs.
+1. Rename output files to system.*
+2. Check leap.log and search "box" --> the simulation box size is automatically determined by leap.  
+  Box dimensions for dltB: 121.510000 121.042000 102.674000  
+  Dimensions for dlt_BC: 120.654000 119.415000 115.541000  
+3. Check charges (should be zero or close to it)  
+   ```
+   source activate AmberTools21
+   tleap
+   pdb=loadpdb $smthsmth.pdb
+   charge pdb
+   ```
+   ```
+   parmed -p system.prmtop
+   netCharge
+   ```  
+   The protein should have its own net charge. We add ions such that we neutralize the box. There is no D-ala contribution. A protein net charge of -0.0007 for example, is acceptably small.   
+5. To edit charge:
+   - Do back-of-envelope calculations using box size to determine the number of Na and Cl in the box.
+   - Calculate what needs adding or removing to reach 150 mM worth of molecules of each
+   - Add the following to the build.in file and re-run leap:
+     	`addIons2 Na ##` or `addIons2 Cl ##`
+   - If ions need removing...?  
+6. Parmed: `checkValidity`
+7. Parmed: Hydrogen Mass Repartitioning
+   ```
+   HMassRepartition dowater
+   parmout system_HMR.prmtop
+   go
+   ```
+8. Download system.prmtop and system.pdb, open in VMD
+9. Check for lipids within central core
+   - color protein with NewCartoon and by ColorID: `protein`
+   - color lipids within 15-25 of protein with VDW and by element: `not waters and not element Na and not element Cl and not resname ACE and not resname NME and not protein and within 15 of protein`
+   - check for lipids populated **into** the protein  
+10. If lipids need removing:
+   - Note down the associated residue IDs/atom numbers. For one lipid molecule, you may have multiple numbers: PA, PC, OL, etc  
+   - Run the following commands (adapted/borrowed from http://archive.ambermd.org/201706/0182.html):  
+     ```
+     parmed -i system.prmtop
+     loadRestrt system.inpcrd
+     strip :64329-64343
+     outparm system_new.prmtop system_new.inpcrd
+     outpdb system_new.pdb
+     go
+     ```
+11. Check for lipids within residues (Y, F)
+   - select Y and F of protein only: `protein and (resname TYR or resname PHE)`
+   - change lipids to sticks
+   - examine for any lipids jammed into the aromatic rings of Y and F
 
-Box dimensions:  121.510000 121.042000 102.674000
-
-next, we need to use leap to add parameters to our system and acquire sim files
-command in tleap: charge pdb
-check box size and charge warnings, adjust charges
-commands in tleap
-check charge on system
-`run parmed -p filename.prmtop netCharge`
-if very close to 0, it’s fine
-
-if we need to remove an atom from the system
-
-double check with parmed that we got down to zero
-do HMR!!
-That should result in .prmtop and a .inpcrd file for simulation
-
-determine overall charge on system
-no D-ala contribution
-the protein overall should have its own net charge, we add ions such that we neutralize the box
-usually Naomi does a quick back of the envelope calculation to determine how many Na and Cl to add
-adds enough Nas and Cls to reach 150 mM of each, but the exact quantity will probably be different
-
-Last minute checks:
-- salt balanced
-- checkValidity
+ Output of leap: .prmtop, .pdb, and .inpcrd file for simulation
 
 # 4: Kick off sims
-  for savio setups:
-folder structure:
-sims → dltBCDX
-	→ dltB_POPC_14sb_tip3p → v1 → 
-		→ input file title: BCDX_dltB_ff14SB_TIP3P.pdb/.prmtop/.inpcrd
-		→ job run title: dltB_POPC_14sb_TIP3P_v1_r1
-	→ dltB_PGPECL_14sb_tip3p → v1 → all prep, run files here
- 
-## Minimize, Heat, Equilibrate, Production
-lastly, we start our simulation
-Bilayer depression/buckling
-"A recent study has found that large membrane patches buckle using the Monte Carlo barostat, whilst smaller patches show a systematic depression of the area per lipid. The buckling behaviour is corrected using a force-switch for non-bonded interactions....The area per lipid depression is also found with Lipid21. However, POPC remains near the experimental area per lipid. The Berendsen barostat is thus preferable over the Monte Carlo barostat when simulation time allows."
-Berendsen barostat recommended rather than Monte Carlo
-If using Monte Carlo, a 10 Å or less LJ cutoff can induce buckling in large patches (200x200 A). While smaller patches do not undergo extreme distortion, they do deviate from experimentally derived parameters due to the effective compression.
-Using a switching function for non-bonded interactions instead of a hard LJ cutoff avoids this undesirable result.
+1. Create folders:
+   - directory structure: sims → dltBCDX → dltB_POPC_14sb_tip3p → v1 → prep/runs
+   - input file title: system.pdb/system_HMR.prmtop/system.inpcrd
+   - job run title: dltB_POPC_14sb_TIP3P_v1_r1
+   - prep
+   	- files from dowsing, packmol-memgen, leap
+   	- system.pdb, system.prmtop, system.inpcrd, system_HMR.prmtop
+   	- sample run_amber.sh
+   	- sample Eq, Min, Heat files
+  - run directories: run_1 - run_5
+  
+2. run_amber.sh
+   - Confirm that the sequence of commands in correct, and that the reference files (-ref) is set correctly to the preceding step
+   - Change run time
+   	- Min, Heat, Eq 1-10, Eq 11-15 = 2hrs, 2hrs, 16hrs, 12hrs
+   	- First few Prod steps while confirming the sim is stable: 8 hrs
+   	- After confirming sim is not crashing: 23/24 hours
+   - Change as preferred:
+   	- queue (savio3_gpu or savio4_gpu). partition, qos, nodes per GPU, and gres to use follow the reference table in the savio website.
+   	- may need to exclude nodes. we run on GPUs. 1 node, 1 task, 2 CPUs per task = 2 CPU cores per sim run
+   	- email address & notification prefs (END, FAIL, ALL)
+   - Copy file to each directory
+   	- Within each directory, edit the job title to r1/r2/r3..
 
-sam do thinking on backing thing sup to wasabi and do a tutorial on how partitions / external hard drives work
+   Explanation of code: The run_amber file checks if Min, Heat, and Eq steps have all completed. If a step is not yet executed, the script prompts the running of that file using the correct inpcrd/prmtop/ref files. Then it starts Prod_1. once Prod_1 is done, it calls a regex expression to figure out what the final outputted Prod step is. It continues the simulation from there while outputting .out, .nc., and .rst files for that Prod run.
+   	  
+3. Minimize, Heat, Equilibrate, Production
+   Note on Bilayer depression/buckling:
+     "A recent study has found that large membrane patches buckle using the Monte Carlo barostat, whilst smaller patches show a systematic depression of the area per lipid. The buckling behaviour is corrected using a force-switch for non-bonded interactions....The area per lipid depression is also found with Lipid21. However, POPC remains near the experimental area per lipid. The Berendsen barostat is thus preferable over the Monte Carlo barostat when simulation time allows."
+     "If using Monte Carlo, a 10 Å or less LJ cutoff can induce buckling in large patches (200x200 A). While smaller patches do not undergo extreme distortion, they do deviate from experimentally derived parameters due to the effective compression. Using a switching function for non-bonded interactions instead of a hard LJ cutoff avoids this undesirable result."
 
-tleap will give a warning if net charge is not zero
-change cut to 10.0
-what is the ref file set to (Min_3 vs prev.rst)
-the remainder of the run amber files checks if Min, Heat, and Eq steps have all completed. If something is incomplete, the script prompts running of that file using the correct inpcrd/prmtop files
+  Params to check, adjust:
+  - cut to 10.0
+  - isotropic, semi-isotropic, anistropic pressure coupling
+  - barostat: in bilayer simulations, use Berendsen (`barostat=1`) to prevent buckling
+  - restraints (@ vs :). Changes depending on step. Common restraints are: "everything except waters and ions", "everything except lipids", "backbone atoms only"
+    
+  - Copy the Min, Heat, Eq, Prod files to every run sibdirectory
 
-then it starts Prod_1. once Prod_1 is done, it calls a regex expression to figure out what the final outputted Prod step is. It continues the simulation from there while outputting .out, .nc., and .rst files for that Prod run.
+4. Add symlinks to the .prmtop and .inpcrd files, to each run subdirectory
+   `ln -s fullpathtoprepdirectory/system_HMR.prmtop system.prmtop`
+   `ln -s fullpathtoprepdirectory/system.incprd system.inpcrd`
 
-## Run Bash
-for run_amber.sh:
-general params
-job title specified, email address specified
-.out and .err files specified
-open-mode = append
-dependency = singleton
-partitions possible:
-want to use GPU nodes only?
-savio2_1080ti
-savio3_gpu
-savio2_gpu
-savio2
-savio4_gpu
-partition, qos, and gres to use follow the table below
-number of gpus or cpus to use, amount of memory, per run
-time: 48 hrs
-no nodes excluded atm
-no CPU only params in use right now
-1 node used for each run, each run is 1 task, 2 CPUs per tasks
-this is 2 CPU cores used per sim run
-GPU params, these are in use
-1 node, 1 task, 2 CPUs per task = 2 CPU cores per sim run
-gres = gpu:1, or gres=gpu:GTX2080TI:1
-
-to figure out the available account, QoS, and partition to use:
-sacctmgr -p show associations user=$USER
-
+5. Submit jobs for every directory
+   From the v1 parent directory:
+   ```for i in {1..5}; do cd run_$i; for j in {1..2}; do sbatch run_amber.sh; done; cd..; done;```  
+   ```sacct --format=jobid,jobname,start,elapsed,end,node,state -S 03/07 --name=dlt_BC_POPC_14sb_TIP3P_v1_r2```  
+   ```squeue -o "%.30j %.8u %.8T %.10M %.9l %.6D %R" --me --name=dltB_POPC_14sb_TIP3P_v1_r1 ```  
+   
 # 5: Monitor sim progress and troubleshoot
 
 # 6: Add images:
