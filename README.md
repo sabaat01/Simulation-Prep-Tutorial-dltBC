@@ -209,13 +209,26 @@ We will perform this step using packmol-memgen. Here is the introductory paper t
 Call run packmol-memgen - - help for a detailed list of parameters  
 Can also look up an Amber manual and navigate to the packmol-memgen section. Amber21 manual (link: https://ambermd.org/doc12/Amber21.pdf) --> section 13.6, page 220.  
 
+We want to set up two different systems:  
+system 1: POPC  
+system 2: POPG/E + cardiolipin bilayer  
   
-Here is the packmol command we will use:  
+P: Palmitic acid | 16:0  
+O: Oleic acid | 18:1(9)  
+PC: Phosphatidylcholine  
+PE: Phosphatidylethanolamine  
+PG: Phosphatidylglycerol  
+CL: Cardiolipin  
+
+To setup POPC:    
 `source activate AmberTools 21`  
   
 ```packmol-memgen --pdb dlt_BC_oriented_prepped_dowsed_capped_opt_min.pdb --lipids POPC --ratio 1 --preoriented --notprotonate --nottrim --salt --salt_c Na+ --saltcon 0.15 --dist 15 --dist_wat 17.5 --ffwat tip3p --ffprot ff14SB --fflip lipid17 --nloop 50```
-
   
+To setup PG:PE:CL (65:27:8):  
+```packmol-memgen --pdb dltB_aligned_prepped_dowsed_minimized.pdb --lipids POPG:POPE:CL --ratio 65:27:8 --preoriented --notprotonate --nottrim --log packmol_log.txt --salt --salt_c Na+ --saltcon 0.15 --dist 12 --dist_wat 20 --keep --parametrize```  
+
+Description:  
 - lipid bilayer: of POPC with a ratio of 1:1
 - preoriented: into a bilayer, so that packmol does not try to rotate our structure for us
 - notprotonate, nottrim: do not change protonation states
@@ -224,41 +237,21 @@ Here is the packmol command we will use:
 - dist_wat: distance between edge of bilayer and edge of box --> this is the width of the water buffer included around our lipid bilayer
 - ff: list force fields of the water molecules, protein, and lipids. To use combinations of lipids to more accurately resemble a Gram-positive bacterium cell well, you must have Lipid21 or higher installed.
 - nloop: packing iterations per molecule, usually 20, but I set it to 50 to see if we could get any better minimizing. This is not necessary, and may make packmol-memgen intolerably slow.
+- keep, parametrize: to load in the cardiolipin (CL) file __didn't do this for dltB or dlt_BC though?__
 
+To use cardiolipin (CL) requires Lipid_ext, which is a part of the Lipid21 package, and we are using Lipid17 right now.   
+To download Lipid21:
+- update to a new version of AmberTools (needs Lipid 21 or higher to use CL): https://ambermd.org/AmberTools.php, then re-compile 
+- to update: https://ambermd.org/GetAmber.php#amber
+- create a new miniconda in our environment called AmberTools23
+- conda create new env name … instructions listed in the Getamber.php site  
   
 Notes on packmol-memgen:
+- Output: pdb file containing protein structure, internal waters, bilayer, ions, and water box  
 - Takes a long time to run. Make sure your connection to the HPCC does not time out, or laptop shut down.
 - If you read through the run log, you will notice that it signals that minimization has not converged. This is okay. It is already extremely close.
 - Might populate lipids into the core of your transmembrane protein! Visualize in VMD (after generating a trajectory) and ensure this is not the case!
-  
-Output of packmol-memgen: pdb file containing protein structure, internal waters, bilayer, ions, and water box  
-
-  
-__Edit later: new bilayer__
-The dimensions of the system are by default estimated by packmol-memgen based on the size of the protein to be packed.
-PG:PE:CL (65:27:8)
-```packmol-memgen --pdb dltB_aligned_prepped_dowsed_minimized.pdb --lipids POPG:POPE:CL --ratio 65:27:8 --preoriented --notprotonate --nottrim --log packmol_log.txt --salt --salt_c Na+ --saltcon 0.15 --dist 12 --dist_wat 20```
-
-→ needs updating to a new version of AmberTools (needs Lipid 21 or higher to use CL)
-→ https://ambermd.org/AmberTools.php 
-→ re-compile 
-→ to update: https://ambermd.org/GetAmber.php#amber
-→ create a new miniconda in our environment called AmberTools23
-
-→ conda create new env name … instructions listed in the Getamber.php site
-
-
---keep --parametrize (to load in the cardiolipin parameter files)
-
-system 1: POPC
-system 2: POPG/E + cardiolipin bilayer
-
-Palmitic acid | 16:0 P
-Oleic acid | 18:1(9) O
-Phosphatidylcholine PC
-Phosphatidylethanolamine PE
-Phosphatidylglycerol PG
-  __end of edit region__
+- The dimensions of the system are by default estimated by packmol-memgen based on the size of the protein to be packed. 
 
 # 3: Parametrize system (prmtop, inpcrd)
 First create an input file for running tleap.
