@@ -398,12 +398,12 @@ tleap -f build.in
 
 5. Submit jobs for every directory
    From the v1 parent directory:
-   ```for i in {1..5}; do cd run_$i; for j in {1..2}; do sbatch run_amber.sh; done; cd..; done;```  
-   ```sacct --format=jobid,jobname,start,elapsed,end,node,state -S 03/07 --name=dlt_BC_POPC_14sb_TIP3P_v1_r2```  
-   ```squeue -o "%.30j %.8u %.8T %.10M %.9l %.6D %R" --me --name=dltB_POPC_14sb_TIP3P_v1_r1 ```  
+   ```for i in {1..5}; do cd run_$i; for j in {1..2}; do sbatch run_amber.sh; done; cd..; done;```   
    
 # 5: Monitor sim progress and troubleshoot
-
+   ```sacct --format=jobid,jobname,start,elapsed,end,node,state -S 03/07 --name=dlt_BC_POPC_14sb_TIP3P_v1_r2```  
+   ```squeue -o "%.30j %.8u %.8T %.10M %.9l %.6D %R" --me --name=dltB_POPC_14sb_TIP3P_v1_r1 ``` 
+   
 # 6: Add images:
    	- gram-positive bacteria cell wall with LTAs + D-alanyl
 	- PyMol OPM
