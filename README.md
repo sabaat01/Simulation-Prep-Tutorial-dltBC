@@ -279,10 +279,10 @@ savepdb p BCDX_dltB_ff14SB_TIP3P.pdb
 quit
 ```
 
-Things that may need editing:
-- force fields used for protein, water, lipid
-- loadPBD: name of PDB file (should be your output PDB from packmol-memgen)
-- saveamberparm and savepdb: edit file names
+- Things that may need editing:
+	- force fields used for protein, water, lipid
+	- loadPBD: name of PDB file (should be your output PDB from packmol-memgen)
+	- saveamberparm and savepdb: edit file names
 
 - Then call:
 ```
@@ -307,11 +307,11 @@ tleap -f build.in
    ```  
    The protein should have its own net charge. We add ions such that we neutralize the box. There is no D-ala contribution. A protein net charge of -0.0007 for example, is acceptably small.
 
-   - To edit charge:
-   	- Do back-of-envelope calculations using box size to determine the number of Na and Cl in the box.
-   	- Calculate what needs adding or removing to reach 150 mM worth of molecules of each
-   	- Add the following to the build.in file and re-run leap: `addIons2 Na ##` or `addIons2 Cl ##`
-   	- If ions need removing...?
+- To edit charge:
+   - Do back-of-envelope calculations using box size to determine the number of Na and Cl in the box.
+   - Calculate what needs adding or removing to reach 150 mM worth of molecules of each
+   - Add the following to the build.in file and re-run leap: `addIons2 Na ##` or `addIons2 Cl ##`
+   - If ions need removing...?
    	  
 - parmed: `checkValidity`
 - parmed: Hydrogen Mass Repartitioning
