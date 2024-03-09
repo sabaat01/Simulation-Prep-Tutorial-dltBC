@@ -344,56 +344,52 @@ tleap -f build.in
  Output of leap: .prmtop, .pdb, and .inpcrd file for simulation
 
 # 4: Kick off sims
-1. Create folders:
+- Create folders:
    - directory structure: sims → dltBCDX → dltB_POPC_14sb_tip3p → v1 → prep/runs
    - input file title: system.pdb/system_HMR.prmtop/system.inpcrd
    - job run title: dltB_POPC_14sb_TIP3P_v1_r1
-   - prep
-   	- files from dowsing, packmol-memgen, leap
-   	- system.pdb, system.prmtop, system.inpcrd, system_HMR.prmtop
-   	- sample run_amber.sh
-   	- sample Eq, Min, Heat files
-  - run directories: run_1 - run_5
+   - run directories: run_1 - run_5
+   - prep directory: includes files from dowsing, packmol-memgen, leap, system.pdb, system.prmtop, system.inpcrd, system_HMR.prmtop, sample run_amber.sh, sample Eq, Min, Heat, Prod files
   
-2. run_amber.sh
-   - Confirm that the sequence of commands in correct, and that the reference files (-ref) is set correctly to the preceding step
-   - Change run time
-   	- Min, Heat, Eq 1-10, Eq 11-15 = 2hrs, 2hrs, 16hrs, 12hrs
-   	- First few Prod steps while confirming the sim is stable: 8 hrs
-   	- After confirming sim is not crashing: 23/24 hours
-   - Change as preferred:
-   	- queue (savio3_gpu or savio4_gpu). partition, qos, nodes per GPU, and gres to use follow the reference table in the savio website.
-   	- may need to exclude nodes. we run on GPUs. 1 node, 1 task, 2 CPUs per task = 2 CPU cores per sim run
-   	- email address & notification prefs (END, FAIL, ALL)
-   - Copy file to each directory
+- Edit run_amber.sh
+   - Confirm that the sequence of commands is correct, and that the reference files (-ref) are set correctly, to either Min_3.rst or the preceding step rst file
+   - Set the run time to 8 hours to start
+   - Decide queue (savio3_gpu or savio4_gpu)
+   - Partition, qos, nodes per GPU, and gres may need to change depending on queue (reference table in the savio website). Also may need to exclude nodes.
+   - We run on GPUs. 1 node, 1 task, 2 CPUs per task = 2 CPU cores per sim run
+   - Email address & notification prefs (END, FAIL, ALL)
+   - Copy the file to each directory
    	- Within each directory, edit the job title to r1/r2/r3..
+   - run `diff run_1/run_amber.sh run_*/run_amber.sh` to confirm that all that is diff between subdir run files is the job-title
 
-   Explanation of code: The run_amber file checks if Min, Heat, and Eq steps have all completed. If a step is not yet executed, the script prompts the running of that file using the correct inpcrd/prmtop/ref files. Then it starts Prod_1. once Prod_1 is done, it calls a regex expression to figure out what the final outputted Prod step is. It continues the simulation from there while outputting .out, .nc., and .rst files for that Prod run.
+### Some explanations
+#### Explanation of run_amber code
+The run_amber file checks if Min, Heat, and Eq steps have all completed. If a step is not yet executed, the script prompts the running of that file using the correct inpcrd/prmtop/ref files. Then it starts Prod_1. once Prod_1 is done, it calls a regex expression to figure out what the final outputted Prod step is. It continues the simulation from there while outputting .out, .nc., and .rst files for that Prod run.
+
+#### Note on bilayer depression/buckling
+"A recent study has found that large membrane patches buckle using the Monte Carlo barostat, whilst smaller patches show a systematic depression of the area per lipid. The buckling behaviour is corrected using a force-switch for non-bonded interactions....The area per lipid depression is also found with Lipid21. However, POPC remains near the experimental area per lipid. The Berendsen barostat is thus preferable over the Monte Carlo barostat when simulation time allows."  
+"If using Monte Carlo, a 10 Å or less LJ cutoff can induce buckling in large patches (200x200 A). While smaller patches do not undergo extreme distortion, they do deviate from experimentally derived parameters due to the effective compression. Using a switching function for non-bonded interactions instead of a hard LJ cutoff avoids this undesirable result."
    	  
-3. Minimize, Heat, Equilibrate, Production
-   Note on Bilayer depression/buckling:
-     "A recent study has found that large membrane patches buckle using the Monte Carlo barostat, whilst smaller patches show a systematic depression of the area per lipid. The buckling behaviour is corrected using a force-switch for non-bonded interactions....The area per lipid depression is also found with Lipid21. However, POPC remains near the experimental area per lipid. The Berendsen barostat is thus preferable over the Monte Carlo barostat when simulation time allows."
-     "If using Monte Carlo, a 10 Å or less LJ cutoff can induce buckling in large patches (200x200 A). While smaller patches do not undergo extreme distortion, they do deviate from experimentally derived parameters due to the effective compression. Using a switching function for non-bonded interactions instead of a hard LJ cutoff avoids this undesirable result."
-
-  Params to check, adjust:
+- Check params for Minimize, Heat, Equilibrate, Production sample files
   - cut to 10.0
   - isotropic, semi-isotropic, anistropic pressure coupling
   - barostat: in bilayer simulations, use Berendsen (`barostat=1`) to prevent buckling
   - restraints (@ vs :). Changes depending on step. Common restraints are: "everything except waters and ions", "everything except lipids", "backbone atoms only"
-    
-  - Copy the Min, Heat, Eq, Prod files to every run sibdirectory
-
-4. Add symlinks to the .prmtop and .inpcrd files, to each run subdirectory
+- Copy the Min, Heat, Eq, Prod sample files to every run subdirectory
+- Add symlinks to the .prmtop and .inpcrd files, to each run subdirectory
    `ln -s fullpathtoprepdirectory/system_HMR.prmtop system.prmtop`
    `ln -s fullpathtoprepdirectory/system.incprd system.inpcrd`
-
-5. Submit jobs for every directory
-   From the v1 parent directory:
-   ```for i in {1..5}; do cd run_$i; for j in {1..2}; do sbatch run_amber.sh; done; cd..; done;```   
+- Submit jobs
+  - submit 1 job for Min steps (8 hour timestep)
+  - change timestep to 1 hr, submit 1 job for Heat steps
+  - change timestep to 24 hrs, submit 2 jobs for Eq steps
+  - from there, submit as many jobs as preferred at 24 hr timesteps, for Prod steps onwards
+  - navigate to the v1 parent directory and run: ```for i in {1..5}; do cd run_$i; for j in {1..2}; do sbatch run_amber.sh; done; cd..; done;```   
    
 # 5: Monitor sim progress and troubleshoot
    ```sacct --format=jobid,jobname,start,elapsed,end,node,state -S 03/07 --name=dlt_BC_POPC_14sb_TIP3P_v1_r2```  
    ```squeue -o "%.30j %.8u %.8T %.10M %.9l %.6D %R" --me --name=dltB_POPC_14sb_TIP3P_v1_r1 ``` 
+   At 1 us you should stop running to process and look at what you've got
    
 # 6: Add images:
    	- gram-positive bacteria cell wall with LTAs + D-alanyl
