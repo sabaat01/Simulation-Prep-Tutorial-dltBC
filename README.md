@@ -54,33 +54,31 @@ Orientations of Proteins in Membrane (OPM) is a site that publishes structures o
 
 ## Access Maestro virtually
 Maestro requires a license. UC Berkeley's Chem Library can provide access through the Molecular Graphics Computation Facility (MGCF). You will have to access a virtual environment to run Maestro. Alternatively, you can visit the MGCF in person in Tan Hall and use Maestro directly on an MGCF monitor.
-
 - Assuming an account with the Chem Library MGCF is already set up, ensure the following basic items are complete:
 	- MobaXTerm installed
 	- starting password has been changed and new password noted down
  	- X2Go installed
-  	- Settings for X2Go and MobaXterm have been adjusted according to the MGCF instructions.  
-  	  
-- Helpful tutorials for completing the above tasks:
-	- New User Instructions: https://docs.google.com/document/d/10lAWGWpGKvwPK3eGNj6TzcoMzOCtDQZC3dr--E7SeYM/edit
-  	- MGCF FAQs: https://mgcf.cchem.berkeley.edu/mgcf/faqs/
-	- Tips on Using Maestro via X2Go: https://docs.google.com/document/d/1kWwOh6VPb9CJRTmhdaGPFgHM5Wg4Ql7vdILsjIiNjPM/view  
+  	- Settings for X2Go and MobaXterm have been adjusted according to the MGCF instructions.
+	- Helpful tutorials for completing the above tasks:
+		- New User Instructions: https://docs.google.com/document/d/10lAWGWpGKvwPK3eGNj6TzcoMzOCtDQZC3dr--E7SeYM/edit
+  		- MGCF FAQs: https://mgcf.cchem.berkeley.edu/mgcf/faqs/
+		- Tips on Using Maestro via X2Go: https://docs.google.com/document/d/1kWwOh6VPb9CJRTmhdaGPFgHM5Wg4Ql7vdILsjIiNjPM/view  
    
-- Start a new X2Go session. To use X2Go with a monitor, you must specify resolution in settings as either maximum possible or according to dimensions of Display 2 and select your monitor as Display 2. Dimensions of Display 2 are 1920 x 1080.  
+- Start a new X2Go session. To use X2Go with a monitor, you must specify the resolution in settings as either maximum possible or according to dimensions of Display 2 and select your monitor as Display 2. Dimensions of Display 2 are 1920 x 1080.
+- Open Maestro in X2Go and create and title a new project.
+	- NOTE: If Maestro is not opening, there may be an issue with the computing cluster. Maestro usually only takes 60s max to open.
+		- Open terminal, type "maestro", it should note that a process has been added.
+ 		- Work on something else for 10 minutes.
+		- If it still hasn't opened, check if you have any processes running across various workstations that may be impeding opening.
+		- Helpful commands to type into X2Go terminal (use with care): ps -x, ws_ps, kill -9 PID, ws_kill, ssh other_workstation_name, pkill -U username
+		- If still not working after several attempts to examine processes, do something else for a while and come back to it, or email Kathy/Singam, or visit the MGCF in person and talk to Singam directly. :(  
 
+## File Transfers
 - MobaXTerm can be used to transfer files between your local computer and the remote filesystem.
 	- SSH protocol, Port 22, specify username (type your username here), and specify an MGCF workstation name such as nano.cchem.berkeley.edu.
    	- The remote filesystem is navigable via the left sidebar
   	- To download from remote to local: select the file you want from the remote filesystem, then click download at the top of the sidebar.
-  	- To upload from local to remote: click upload at the top of the sidebar, then navigate through your local filesystem in the popup and select the file(s) you want to add.  
-
-- Open Maestro in X2Go and create and title a new project.  
-- NOTE: If Maestro is not opening, there may be an issue with the computing cluster. Maestro usually only takes 60s max to open.
-	- Open terminal, type "maestro", it should note that a process has been added.
- 	- Work on something else for 10 minutes.
-	- If it still hasn't opened, check if you have any processes running across various workstations that may be impeding opening.
-	- Helpful commands to type into X2Go terminal (use with care): ps -x, ws_ps, kill -9 PID, ws_kill, ssh other_workstation_name, pkill -U username
-	- If still not working after several attempts to examine processes, do something else for a while and come back to it, or email Kathy/Singam, or visit the MGCF in person and talk to Singam directly. :(  
+  	- To upload from local to remote: click upload at the top of the sidebar, then navigate through your local filesystem in the popup and select the file(s) you want to add.
 
 ## Preprocess
 - Import structure: dltB_aligned.pdb
