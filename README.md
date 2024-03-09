@@ -2,32 +2,24 @@
 walkthrough of preparing a new system for simulating, using dltBC as an example
 ## Intro and Goals
 dltBCDX is a multi-protein complex embedded in the cell wall of gram-positive bacteria and is involved in decorating the outer surface of the cell wall with D-alanine residues. These D-alanines attach to LTAs (lipotechoic acid) on the extracellular surface and provide the bacterium with a positive charge, which protects the bacterium from attack by antibiotics or an immune response.
+
 Since D-alanine passes through the dltBCDX complex via sequential covalent interactions, it can't be modeled through a single simulation. This tutorial is based on the preparation of dltB alone and dltBC simulations.
 
-We are going to prepare our system using various software packages, then initiate simulations on Savio (UC Berkeley's HPCC).
+We are going to prepare our system using various software packages, then initiate simulations on Savio (UC Berkeley's High Performance Computing Cluster).
 
 dltB has 415 residues (depends on species).
 dltBC has 415 (B) + 79 (C) residues.
 For both simulations, we will be using a POPC bilayer to simulate the bacterium cell wall, and Amber's FF14SB and TIP3P water model.
 
-Steps for setting up a simulation:
+### Steps for setting up a simulation:
 1. Prepare protein
-	- Acquire appropriate PDB files
-	- Clean and prepare the protein
 2. Add environment / solvate
-   	- Add waters, ions, and bilayer/water box
-3. Generate starting files
-	- Parameter + inpcrd files
-	- Eq, Min, and Heat files
-	- bash file script for running sim
-4. Prepare Savio
-	- folder for each replicate, duplicate input files, set up symlinks, specify run params
-5. Kick off sims, monitor
-   	- tips for monitoring/checking statuses
-   	- how to download trajectories and visualize
-
+3. Parametrize system
+4. Kick off sims
+5. Monitor, troubleshoot
 
 # 1: Prepare protein
+### Extra Notes
 From https://erikh.gitlab.io/group-page/protsetup.html:
 - Is the protein a monomer, dimer? or n-mer?
 - Are there Cys-Cys- crosslinks?
@@ -37,7 +29,7 @@ From https://erikh.gitlab.io/group-page/protsetup.html:
 
 ## Acquire original PDB
 Usually, one would download a crystal structure from PDB (link to dltB: https://www.rcsb.org/structure/6BUG). In this prep, however, we used a crystal structure that contained the full complex, then isolated the proteins we wanted to simulate.
-  
+
 - Open .pdb file in PyMol
 - Label by chain, color by chain
 - Select only what is needed:
@@ -67,26 +59,28 @@ Maestro requires a license. UC Berkeley's Chem Library can provide access throug
 	- MobaXTerm installed
 	- starting password has been changed and new password noted down
  	- X2Go installed
-  	- Settings for X2Go and MobaXterm have been adjusted according to the MGCF instructions.
+  	- Settings for X2Go and MobaXterm have been adjusted according to the MGCF instructions.  
+  	  
 - Helpful tutorials for completing the above tasks:
 	- New User Instructions: https://docs.google.com/document/d/10lAWGWpGKvwPK3eGNj6TzcoMzOCtDQZC3dr--E7SeYM/edit
   	- MGCF FAQs: https://mgcf.cchem.berkeley.edu/mgcf/faqs/
-	- Tips on Using Maestro via X2Go: https://docs.google.com/document/d/1kWwOh6VPb9CJRTmhdaGPFgHM5Wg4Ql7vdILsjIiNjPM/view
-- Start a new X2Go session. To use X2Go with a monitor, you must specify resolution in settings as either maximum possible or according to dimensions of Display 2 and select your monitor as Display 2. Dimensions of Display 2 are 1920 x 1080.
----
+	- Tips on Using Maestro via X2Go: https://docs.google.com/document/d/1kWwOh6VPb9CJRTmhdaGPFgHM5Wg4Ql7vdILsjIiNjPM/view  
+   
+- Start a new X2Go session. To use X2Go with a monitor, you must specify resolution in settings as either maximum possible or according to dimensions of Display 2 and select your monitor as Display 2. Dimensions of Display 2 are 1920 x 1080.  
+
 - MobaXTerm can be used to transfer files between your local computer and the remote filesystem.
 	- SSH protocol, Port 22, specify username (type your username here), and specify an MGCF workstation name such as nano.cchem.berkeley.edu.
    	- The remote filesystem is navigable via the left sidebar
   	- To download from remote to local: select the file you want from the remote filesystem, then click download at the top of the sidebar.
-  	- To upload from local to remote: click upload at the top of the sidebar, then navigate through your local filesystem in the popup and select the file(s) you want to add.
----
-- Open Maestro in X2Go and create and title a new project.
+  	- To upload from local to remote: click upload at the top of the sidebar, then navigate through your local filesystem in the popup and select the file(s) you want to add.  
+
+- Open Maestro in X2Go and create and title a new project.  
 - NOTE: If Maestro is not opening, there may be an issue with the computing cluster. Maestro usually only takes 60s max to open.
 	- Open terminal, type "maestro", it should note that a process has been added.
  	- Work on something else for 10 minutes.
 	- If it still hasn't opened, check if you have any processes running across various workstations that may be impeding opening.
 	- Helpful commands to type into X2Go terminal (use with care): ps -x, ws_ps, kill -9 PID, ws_kill, ssh other_workstation_name, pkill -U username
-	- If still not working after several attempts to examine processes, do something else for a while and come back to it, or email Kathy/Singam, or visit the MGCF in person and talk to Singam directly. :(
+	- If still not working after several attempts to examine processes, do something else for a while and come back to it, or email Kathy/Singam, or visit the MGCF in person and talk to Singam directly. :(  
 
 ## Preprocess
 - Import structure: dltB_aligned.pdb
