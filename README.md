@@ -110,6 +110,7 @@ In the dlt_BC structure, there are ligands such as PNS (phosphopantethiene group
 - Save a pdb before optimization
 
 ## Check protonation states
+### Intro
 We want to examine the local environment of each of the protein's polar/charged residues.  
 From: https://computecanada.github.io/molmodsim-amber-md-lesson/11-Protonation_State/index.html  
 "The protonation states of titratable amino acids (Arg, Lys, Tyr, Cys, His, Glu, Asp) depend on the local micro-environment and pH. A highly polar microenvironment will stabilize the charged form, while a less polar microenvironment will favor the neutral form."  
@@ -118,7 +119,7 @@ Some residues have charge states that will be influenced by whether they are in 
   
 Example: aspartic acid (D) changing from pKa 3.71 to pKa 7.6.  A lysine (K) and aspartic acid (D) near each other may favor a protonated lysine and deprotonated aspartic acid.  
   
-- How to optimize charge states:
+### How to optimize charge states:
 1. No Flip residues (Asn, Gln) can be ignored. Highly unlikely that anything needs changing.
 2. Ignore Ser, Thr, Tyr
 3. Check Lys, Asp, and Glu in detail
@@ -146,16 +147,17 @@ Example: aspartic acid (D) changing from pKa 3.71 to pKa 7.6.  A lysine (K) and 
 	- __Asp (Aspartic Acid, D, negative charge)__
 	- __Glu (Glutamic Acid, E, negative charge)__
 	- __His (Histidine, H, positive charge)__
----
-- (Round One) Refine:
-	- select Label pKas
+### Steps
+- Round One: Manual optimization
+	- Protein Prep Wizard --> Refine tab
+ 	- select Label pKas
 	- Run Interactive Optimizer (new window opens)
    		- Select Label pKas, use PROPKA 3.0
      		- click Analyze Network
   		- click on the first species and click through possible states using the "<" ">" buttons. Repeat for every species in the list and optimize each charge state. Navigate to the next species using the up and down arrow keys.
 - Label this structure with "preprocessed_noCaps" in the sidebar and export PDB from Maestro. Use MobaXTerm to download from remote filesystem to local computer, then scp using the dtn and add it to Savio filesystem.
   
-- (Round Two) Add internal water molecules to stabilize the charged residues in the protein
+- Round Two: Dowse (Add internal water molecules to stabilize the charged residues in the protein)
 	- Dowser is built into the Savio bash, so just call `dowser filename.pdb`
  	- Confirm that dowser completes correctly, does not crash
   	- scp dowserwat.pdb onto local filesystem, then upload to remote using MobaXTerm
@@ -163,13 +165,14 @@ Example: aspartic acid (D) changing from pKa 3.71 to pKa 7.6.  A lysine (K) and 
   	- Shift+Select both the "preprocessed" pdb from prior and "dowserwat.pdb" --> right click --> select "Merge" from menu
   - Rename the merged structure "prepped_dowsed_noCaps"
   	  
-- (Round Three) Recheck protonation
+- Round Three: Manual re-optimize
 	- Protein Prep Wizard --> Import and Process tab --> check Cap termini --> Preprocess
  	- Add "capped" the name of this new structure. Make sure you have the correct structure selected. Double check on problems, missing atoms, and review & modify tab.
   	- Refine tab --> re-run the Interactive Optimizer now with capped + dowsed protein. Adust charge states as needed.
   - Label new structure with "opt"
   	  
-- (Round Four) Refine --> Restrained Minimization (hydrogens only, OPLS4)
+- Round Four: Minimize
+	- Refine tab --> Restrained Minimization (hydrogens only, OPLS4)
 - Label new structure with "min"
 - Export prepared structure as PDB file from Maestro to remote. Download PDB from remote to local, then scp to Savio
 ---
