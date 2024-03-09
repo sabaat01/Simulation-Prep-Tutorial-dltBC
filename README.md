@@ -120,33 +120,26 @@ Some residues have charge states that will be influenced by whether they are in 
 Example: aspartic acid (D) changing from pKa 3.71 to pKa 7.6.  A lysine (K) and aspartic acid (D) near each other may favor a protonated lysine and deprotonated aspartic acid.  
   
 ### How to optimize charge states:
-1. No Flip residues (Asn, Gln) can be ignored. Highly unlikely that anything needs changing.
+1. No Flip residues (**Asn, Gln**) can be ignored. Highly unlikely that anything needs changing.
 2. Ignore Ser, Thr, Tyr
-3. Check Lys, Asp, and Glu in detail
+3. Check **Lys, Asp, and Glu** in detail
 	- All three will usually retain a charge (Lys protonated, Asp & Glu deprotonated)
  	- What is the usual pKa for the given side chain? What is the pKa listed in the Maestro display?
   	- Has there been a dramatic shift in pKa that may influence the charge state?
    	- Are there more favorable interactions available in a different charge state/conformation?  
 	__electrostatic interactions (mauve) >> hbonds (yellow) >> aromatic hbonds (teal)__
   
-4. Check His in detail
+4. Check **His** in detail
 	- 3 possible states: HIE (H on one of the two N's), HID (H on the opposite N), HIP (positively charged, both N's have an H)
    	- The extra (+) charge in HIP is not favorable. Only select the HIP state if it will induce the formation of a salt bridge/electrostatic interaction.
      	- If the pKa of His has been shifted by its surroundings to be >7-8, then you can protonate it. This usually occurs if there's an acidic residue (such as Asp/D or Glu/E) next to it encouraging a salt bridge.
   
 5. For Lys, Asp, Glu, His: If there are two unique bonding patterns possible, both equally favorable, you may need to set up two different simulation sets and analyze both datasets.
   
-6. common residues that pop up
-	- Gln (Glutamine, Q, polar uncharged)
- 	- Asn (Asparagine, N, polar uncharged)
-  	- Tyr (Tyrosine, Y, hydrophobic)
-	- Cys (Cysteine, C, special res)
-	- Ser (Serine, S, polar uncharged)
-	- Thr (Threonine, T, polar uncharged)
-	- __Lys (Lysine, K, positive charge)__
-	- __Asp (Aspartic Acid, D, negative charge)__
-	- __Glu (Glutamic Acid, E, negative charge)__
-	- __His (Histidine, H, positive charge)__
+6. Common residues that pop up
+	- Ignorable: Gln (Glutamine, Q, polar uncharged), Asn (Asparagine, N, polar uncharged), Tyr (Tyrosine, Y, hydrophobic), Cys (Cysteine, C, special res), Ser (Serine, S, polar uncharged), Thr (Threonine, T, polar uncharged)
+	- Examine closely: Lys (Lysine, K, positive charge), Asp (Aspartic Acid, D, negative charge), Glu (Glutamic Acid, E, negative charge), His (Histidine, H, positive charge)
+
 ### Steps
 - Round One: Manual optimization
 	- Protein Prep Wizard --> Refine tab
@@ -176,7 +169,7 @@ Example: aspartic acid (D) changing from pKa 3.71 to pKa 7.6.  A lysine (K) and 
 - Label new structure with "min"
 - Export prepared structure as PDB file from Maestro to remote. Download PDB from remote to local, then scp to Savio
 ---
-What is Cap Termini?
+[What is Cap Termini?]  
 The goal is to neutralize the protein backbone by adjusting the C and N-termini and spreading their charge as evenly as possible.
 - N terminus (first residue): the NH2 group gets a carboxyl (acetyl, ACE) tacked on.
 - C terminus (last residue): the carboxyl gets an amide (N-methyl, NME) tacked on.
@@ -194,6 +187,7 @@ Issues I've run into before:
 If you need to check for errors, no need to re-run packmol-memgen, just send tleap the original edited pdb file, confirm the bugs were fixed, then re-start building from packmol
   
 ## Generate bilayer + water box
+### Intro
 Depending on the system you are preparing you may need to perform some or all of the following steps:
 - Add internal waters
 - Add ions
@@ -214,6 +208,7 @@ PE: Phosphatidylethanolamine
 PG: Phosphatidylglycerol  
 CL: Cardiolipin  
 
+### Commands
 To setup POPC:    
 `source activate AmberTools 21`  
   
@@ -222,17 +217,30 @@ To setup POPC:
 To setup PG:PE:CL (65:27:8):  
 ```packmol-memgen --pdb dltB_aligned_prepped_dowsed_minimized.pdb --lipids POPG:POPE:CL --ratio 65:27:8 --preoriented --notprotonate --nottrim --log packmol_log.txt --salt --salt_c Na+ --saltcon 0.15 --dist 12 --dist_wat 20 --keep --parametrize```  
 
-Description:  
-- lipid bilayer: of POPC with a ratio of 1:1
-- preoriented: into a bilayer, so that packmol does not try to rotate our structure for us
-- notprotonate, nottrim: do not change protonation states
-- salt, salt_c, saltcon: add ions. use Na+ (not K+), and Cl- is the default acceptor. add to a concentration of 150 mM (0.150 M)
-- dist: minimum distance to the box border in x,y,z directions
-- dist_wat: distance between edge of bilayer and edge of box --> this is the width of the water buffer included around our lipid bilayer
-- ff: list force fields of the water molecules, protein, and lipids. To use combinations of lipids to more accurately resemble a Gram-positive bacterium cell well, you must have Lipid21 or higher installed.
-- nloop: packing iterations per molecule, usually 20, but I set it to 50 to see if we could get any better minimizing. This is not necessary, and may make packmol-memgen intolerably slow.
-- keep, parametrize: to load in the cardiolipin (CL) file __didn't do this for dltB or dlt_BC though?__
+### Notes
+- Command description:
+	- lipid bilayer: of POPC with a ratio of 1:1
+	- preoriented: into a bilayer, so that packmol does not try to rotate our structure for us
+	- notprotonate, nottrim: do not change protonation states
+	- salt, salt_c, saltcon: add ions. use Na+ (not K+), and Cl- is the default acceptor. add to a concentration of 150 mM (0.150 M)
+	- dist: minimum distance to the box border in x,y,z directions
+	- dist_wat: distance between edge of bilayer and edge of box --> this is the width of the water buffer included around our lipid bilayer
+	- ff: list force fields of the water molecules, protein, and lipids. To use combinations of lipids to more accurately resemble a Gram-positive bacterium cell well, you must have Lipid21 or higher installed.
+	- nloop: packing iterations per molecule, usually 20, but I set it to 50 to see if we could get any better minimizing. This is not necessary, and may make packmol-memgen intolerably slow.
+	- keep, parametrize: to load in the cardiolipin (CL) file __didn't do this for dltB or dlt_BC though?__  
   
+- Output: pdb file containing protein structure, internal waters, bilayer, ions, and water box  
+	- Takes a long time to run. Make sure your connection to the HPCC does not time out, or laptop shut down.
+	- If you read through the run log, you will notice that it signals that minimization has not converged. This is okay. It is already extremely close.
+	- Might populate lipids into the core of your transmembrane protein! Visualize in VMD (after generating a trajectory) and ensure this is not the case!
+	- The dimensions of the system are by default estimated by packmol-memgen based on the size of the protein to be packed.
+
+- For a more detailed list of parameters, try the following:
+	- Call `packmol-memgen - - help`
+	- Here is the introductory paper to the software, it is very short and informative: https://pubs.acs.org/doi/epdf/10.1021/acs.jcim.9b00269.
+	- Look up an Amber manual and navigate to the packmol-memgen section. Amber21 manual (link: https://ambermd.org/doc12/Amber21.pdf) --> section 13.6, page 220.  
+---
+### Adding a new FF
 To use cardiolipin (CL) requires Lipid_ext, which is a part of the Lipid21 package, and we are using Lipid17 right now.   
 To download Lipid21:
 - update to a new version of AmberTools (needs Lipid 21 or higher to use CL): https://ambermd.org/AmberTools.php, then re-compile 
@@ -240,23 +248,11 @@ To download Lipid21:
 - create a new miniconda in our environment called AmberTools23
 - conda create new env name … instructions listed in the Getamber.php site  
   
-Notes on packmol-memgen:
-- Output: pdb file containing protein structure, internal waters, bilayer, ions, and water box  
-- Takes a long time to run. Make sure your connection to the HPCC does not time out, or laptop shut down.
-- If you read through the run log, you will notice that it signals that minimization has not converged. This is okay. It is already extremely close.
-- Might populate lipids into the core of your transmembrane protein! Visualize in VMD (after generating a trajectory) and ensure this is not the case!
-- The dimensions of the system are by default estimated by packmol-memgen based on the size of the protein to be packed.
-- For a more detailed list of parameters, try the following:
-	- Call `packmol-memgen - - help`
-	- Here is the introductory paper to the software, it is very short and informative: https://pubs.acs.org/doi/epdf/10.1021/acs.jcim.9b00269.
-	- Look up an Amber manual and navigate to the packmol-memgen section. Amber21 manual (link: https://ambermd.org/doc12/Amber21.pdf) --> section 13.6, page 220.  
-  
 # 3: Parametrize system (prmtop, inpcrd)
-First create an input file for running tleap.
-`vim build.in`
-switch to Insert mode: <Ctrl+I>
-
-Paste (Ctrl+V) the following:
+- First create an input file for running tleap.
+  - `vim build.in`
+  - switch to Insert mode: <Ctrl+I>
+  - Paste (Ctrl+V) the following:
 ```
 addPath /global/home/groups/fc_zebramd/software/amber18/dat/leap/cmd
 addPath /global/home/groups/fc_zebramd/software/amber18/dat/leap/parm
@@ -288,17 +284,17 @@ Things that may need editing:
 - loadPBD: name of PDB file (should be your output PDB from packmol-memgen)
 - saveamberparm and savepdb: edit file names
 
-Then call:
+- Then call:
 ```
 source activate AmberTools21
 tleap -f build.in
 ```
 
-1. Rename output files to system.*
-2. Check leap.log and search "box" --> the simulation box size is automatically determined by leap.  
-  Box dimensions for dltB: 121.510000 121.042000 102.674000  
-  Dimensions for dlt_BC: 120.654000 119.415000 115.541000  
-3. Check charges (should be zero or close to it)  
+- Rename output files to system.*
+- Check leap.log and search "box" --> the simulation box size is automatically determined by leap.
+	- Box dimensions for dltB: 121.510000 121.042000 102.674000  
+  	- Dimensions for dlt_BC: 120.654000 119.415000 115.541000  
+- Check charges (should be zero or close to it)  
    ```
    source activate AmberTools21
    tleap
@@ -309,26 +305,27 @@ tleap -f build.in
    parmed -p system.prmtop
    netCharge
    ```  
-   The protein should have its own net charge. We add ions such that we neutralize the box. There is no D-ala contribution. A protein net charge of -0.0007 for example, is acceptably small.   
-5. To edit charge:
-   - Do back-of-envelope calculations using box size to determine the number of Na and Cl in the box.
-   - Calculate what needs adding or removing to reach 150 mM worth of molecules of each
-   - Add the following to the build.in file and re-run leap:
-     	`addIons2 Na ##` or `addIons2 Cl ##`
-   - If ions need removing...?  
-6. Parmed: `checkValidity`
-7. Parmed: Hydrogen Mass Repartitioning
+   The protein should have its own net charge. We add ions such that we neutralize the box. There is no D-ala contribution. A protein net charge of -0.0007 for example, is acceptably small.
+
+   - To edit charge:
+   	- Do back-of-envelope calculations using box size to determine the number of Na and Cl in the box.
+   	- Calculate what needs adding or removing to reach 150 mM worth of molecules of each
+   	- Add the following to the build.in file and re-run leap: `addIons2 Na ##` or `addIons2 Cl ##`
+   	- If ions need removing...?
+   	  
+- parmed: `checkValidity`
+- parmed: Hydrogen Mass Repartitioning
    ```
    HMassRepartition dowater
    parmout system_HMR.prmtop
    go
    ```
-8. Download system.prmtop and system.pdb, open in VMD
-9. Check for lipids within central core
+- Download system.prmtop and system.pdb, open in VMD
+- Check for lipids within central core
    - color protein with NewCartoon and by ColorID: `protein`
    - color lipids within 15-25 of protein with VDW and by element: `not waters and not element Na and not element Cl and not resname ACE and not resname NME and not protein and within 15 of protein`
    - check for lipids populated **into** the protein  
-10. If lipids need removing:
+- If lipids need removing:
    - Note down the associated residue IDs/atom numbers. For one lipid molecule, you may have multiple numbers: PA, PC, OL, etc  
    - Run the following commands (adapted/borrowed from http://archive.ambermd.org/201706/0182.html):  
      ```
@@ -339,7 +336,7 @@ tleap -f build.in
      outpdb system_new.pdb
      go
      ```
-11. Check for lipids within residues (Y, F)
+- Check for lipids within residues (Y, F)
    - select Y and F of protein only: `protein and (resname TYR or resname PHE)`
    - change lipids to sticks
    - examine for any lipids jammed into the aromatic rings of Y and F
