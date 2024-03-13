@@ -386,9 +386,13 @@ The run_amber file checks if Min, Heat, and Eq steps have all completed. If a st
 "If using Monte Carlo, a 10 Å or less LJ cutoff can induce buckling in large patches (200x200 A). While smaller patches do not undergo extreme distortion, they do deviate from experimentally derived parameters due to the effective compression. Using a switching function for non-bonded interactions instead of a hard LJ cutoff avoids this undesirable result."
    
 # 5: Monitor sim progress and troubleshoot
-   ```sacct --format=jobid,jobname,start,elapsed,end,node,state -S 03/07 --name=dlt_BC_POPC_14sb_TIP3P_v1_r2```  
-   ```squeue -o "%.30j %.8u %.8T %.10M %.9l %.6D %R" --me --name=dltB_POPC_14sb_TIP3P_v1_r1 ``` 
-   At 1 us you should stop running to process and look at what you've got
+- Check history of what has run and failed:
+   ```sacct --format=jobid,jobname,start,elapsed,end,node,state -S 03/07 --name=dlt_BC_POPC_14sb_TIP3P_v1_r2```
+- Check what is currently in the queue
+  ```squeue -o "%.30j %.8u %.8T %.10M %.9l %.6D %R" --me --name=dltB_POPC_14sb_TIP3P_v1_r1 ``` 
+- Check the most recent jobstep outputted: `ll -ltr`
+- Check number of ns/us: `cat mdinfo | grep TIME`
+	- At 1 us you should stop running to process and look at what you've got
    
 # 6: Add images:
    	- gram-positive bacteria cell wall with LTAs + D-alanyl
