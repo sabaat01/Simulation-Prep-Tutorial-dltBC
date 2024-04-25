@@ -321,6 +321,7 @@ tleap -f build.in
    go
    ```
 - Download system.prmtop and system.pdb, open in VMD
+   - if the water molecules look sussy with the prmtop, it's ok --> you can ignore, and still need to add both pdb and prmtop to VMD before viewing the protein!
 - Check for lipids within central core
    - color protein with NewCartoon and by ColorID: `protein`
    - color lipids within 15-25 of protein with VDW and by element: `not waters and not element Na and not element Cl and not resname ACE and not resname NME and not protein and within 15 of protein`
