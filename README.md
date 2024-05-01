@@ -1,11 +1,11 @@
 # MD Simulation Prep Tutorial: dltBC
 walkthrough of preparing a new system for simulating, using dltBC as an example
 ## Intro and Goals
-dltBCDX is a multi-protein complex embedded in the cell wall of gram-positive bacteria and is involved in decorating the outer surface of the cell wall with D-alanine residues. These D-alanines attach to LTAs (lipotechoic acid) on the extracellular surface and provide the bacterium with a positive charge, which protects the bacterium from attack by antibiotics or an immune response.
+dltBC is part of a protein complex embedded in the cell wall of gram-positive bacteria, and it is involved in decorating the outer surface of the cell wall with D-alanine residues. These D-alanines attach to LTAs (lipotechoic acid) on the extracellular surface and provide the bacterium with a positive charge, which protects it from attack and degradation.
 
-Since D-alanine passes through the dltBCDX complex via sequential covalent interactions, it can't be modeled through a single simulation. This tutorial is based on the preparation of dltB alone and dltBC simulations.
+Since D-alanine passes through the protein complex via sequential covalent interactions, it can't be modeled through a single simulation. This tutorial is based on preparing first dltB alone, then dltBC simulations.
 
-We are going to prepare our system using various software packages, then initiate simulations on Savio (UC Berkeley's High Performance Computing Cluster).
+We will prepare our system using various software packages, and then initiate simulations on Savio (UC Berkeley's High Performance Computing Cluster).
 
 dltB has 415 residues (depends on species).
 dltBC has 415 (B) + 79 (C) residues.
@@ -28,7 +28,7 @@ From https://erikh.gitlab.io/group-page/protsetup.html:
 - At what pH was the structure obtained?
 
 ## Acquire original PDB
-Usually, one would download a crystal structure from PDB (link to dltB: https://www.rcsb.org/structure/6BUG). In this prep, however, we used a crystal structure that contained the full complex, then isolated the proteins we wanted to simulate.
+Download a crystal structure from PDB (link to dltB: https://www.rcsb.org/structure/6BUG).
 
 - Open .pdb file in PyMol
 - Label by chain, color by chain
@@ -40,7 +40,7 @@ Usually, one would download a crystal structure from PDB (link to dltB: https://
 ## Orient into a membrane frame
 We want our system oriented in 3D space such that if the bilayer was a book, x and y are the length and width of the book cover, and z would be the depth/thickness.
 
-Orientations of Proteins in Membrane (OPM) is a site that publishes structures of proteins from the PDB pre-oriented into a bilayer. If you downloaded a crystral structure from PDB, you might be able to download the directly corresponding OPM file and delete the bilayer markers. In this case, we needed extra steps since our PDB did not have a 1-to-1 corresponding OPM file. 
+Orientations of Proteins in Membrane (OPM) is a site that publishes structures of proteins from the PDB pre-oriented into a bilayer. 
 
 - Download dltB's OPM database file. dltC is conveniently included in this pre-oriented file. (link: https://opm.phar.umich.edu/proteins/4049)
 - In PyMOL: Open → find the dlt_BC_OPM file and load into PyMOL alongside dltB_alone
@@ -254,15 +254,15 @@ To download Lipid21:
   - switch to Insert mode: <Ctrl+I>
   - Paste (Ctrl+V) the following:
 ```
-addPath /global/home/groups/fc_zebramd/software/amber18/dat/leap/cmd
-addPath /global/home/groups/fc_zebramd/software/amber18/dat/leap/parm
-addPath /global/home/groups/fc_zebramd/software/amber18/dat/leap/lib
-addPath /global/home/groups/fc_zebramd/software/amber18/dat/leap/prep
+addPath /global/home/groups/xxxxxxx/software/amber18/dat/leap/cmd
+addPath /global/home/groups/xxxxxxx/software/amber18/dat/leap/parm
+addPath /global/home/groups/xxxxxxx/software/amber18/dat/leap/lib
+addPath /global/home/groups/xxxxxxx/software/amber18/dat/leap/prep
 
-source /global/home/groups/fc_zebramd/software/amber18/dat/leap/cmd/leaprc.protein.ff14SB
-source /global/home/groups/fc_zebramd/software/amber18/dat/leap/cmd/leaprc.water.tip3p
-source /global/home/groups/fc_zebramd/software/amber18/dat/leap/cmd/leaprc.gaff2
-source /global/home/groups/fc_zebramd/software/amber18/dat/leap/cmd/leaprc.lipid17
+source /global/home/groups/xxxxxxx/software/amber18/dat/leap/cmd/leaprc.protein.ff14SB
+source /global/home/groups/xxxxxxx/software/amber18/dat/leap/cmd/leaprc.water.tip3p
+source /global/home/groups/xxxxxxx/software/amber18/dat/leap/cmd/leaprc.gaff2
+source /global/home/groups/xxxxxxx/software/amber18/dat/leap/cmd/leaprc.lipid17
 
 loadamberparams /global/home/groups/fc_zebramd/software/amber18/dat/leap/parm/frcmod.ionsjc_tip3p
 
@@ -273,8 +273,8 @@ setbox p centers 0.0
 
 check p
 
-saveamberparm p BCDX_dltB_ff14SB_TIP3P.prmtop BCDX_dltB_ff14SB_TIP3P.inpcrd
-savepdb p BCDX_dltB_ff14SB_TIP3P.pdb
+saveamberparm p dltB_ff14SB_TIP3P.prmtop dltB_ff14SB_TIP3P.inpcrd
+savepdb p dltB_ff14SB_TIP3P.pdb
 
 quit
 ```
@@ -311,7 +311,6 @@ tleap -f build.in
    - Do back-of-envelope calculations using box size to determine the number of Na and Cl in the box.
    - Calculate what needs adding or removing to reach 150 mM worth of molecules of each
    - Add the following to the build.in file and re-run leap: `addIons2 Na ##` or `addIons2 Cl ##`
-   - If ions need removing...?
    	  
 - parmed: `checkValidity`
 - parmed: Hydrogen Mass Repartitioning
