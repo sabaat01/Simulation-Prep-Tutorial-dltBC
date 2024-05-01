@@ -1,4 +1,4 @@
-# Simulation-Prep-Tutorial-dltBC
+# MD Simulation Prep Tutorial: dltBC
 walkthrough of preparing a new system for simulating, using dltBC as an example
 ## Intro and Goals
 dltBCDX is a multi-protein complex embedded in the cell wall of gram-positive bacteria and is involved in decorating the outer surface of the cell wall with D-alanine residues. These D-alanines attach to LTAs (lipotechoic acid) on the extracellular surface and provide the bacterium with a positive charge, which protects the bacterium from attack by antibiotics or an immune response.
